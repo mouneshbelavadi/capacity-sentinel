@@ -114,3 +114,4 @@ Saying honesty lines **before** a judge asks shows deep technical competence:
 - **NO Gas Leak with a Lighter or Alcohol**: A flame or butane jet from a lighter trips fire safety alarms, violates venue safety rules, and takes up to 45 minutes for the MQ135 sensor to desorb and recover.
 - **NO Real Thermal Overheating**: Do not place heat guns or hair dryers directly onto 3D-printed parts or bare PCB traces. Cupping hands or holding warm breath gently near the DHT22 is completely sufficient to move the slope by 1.5 °C.
 - **NO Local LLM on the Microcontrollers**: A 1-billion parameter model is 500 MB. The ESP32-S3 has 512 KB of RAM. Explain this openly to judges if asked.
+

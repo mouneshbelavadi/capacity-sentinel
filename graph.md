@@ -53,6 +53,7 @@ graph TD
         T_SMOKE["tools/smoke_test.py (8-Step End-to-End System Smoke Test)"]:::done
         T_DEMO["tools/demo_check.py (Pre-Flight Readiness Checker)"]:::done
         T_BACKTEST["tools/synthetic/backtest.py (12-Month Ground-Truth Evaluation)"]:::done
+        T_RUN["run_project.py / run_project.bat (One-Click Auto-Launcher & Live Runner)"]:::done
         DOC_ANALYSIS["ANALYSIS.md (Mathematical & Physical Foundations)"]:::done
         DOC_DEMO["DEMO.md (2.5-Minute Stage Script & Pre-Flight Playbook)"]:::done
     end

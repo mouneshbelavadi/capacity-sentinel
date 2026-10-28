@@ -282,3 +282,4 @@ To maintain engineering and physical integrity, the following features were expl
 7. **No Client-Side Permission Checks**: Every query enforces tenant isolation server-side via `apply_scope()`.
 8. **No `admin` Label Anywhere**: The elevated role is strictly `SUPER_USER`; views are `Data Center Dashboard` and `Tenant Dashboard`.
 9. **No Deleting or Editing Audit Records**: Zero `UPDATE` or `DELETE` queries exist for the audit table.
+

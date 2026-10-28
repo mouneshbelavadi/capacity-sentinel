@@ -78,6 +78,7 @@ Full-stack implementation is complete and verified:
 | 2026-10-28 | Pre-flight readiness checker (tools/demo_check.py) | Verifies config, database, audit ledger, baselines, LLM fallback, and timing budgets before live stage demo | `03-master-integration.md` Part 2 & 5 |
 | 2026-10-28 | 12-month synthetic facility backtest (tools/synthetic/backtest.py) | Evaluates lead times (16.6d mean), false-alarm rate (12.5%), interval coverage (63.4%), and change-point F1 (1.000) against ground truth in files (1) | `03-master-integration.md` Part 4 |
 | 2026-10-28 | Transparent scope limit disclosure in ANALYSIS.md and DEMO.md | Week-scale claim declared as design intent and synthetic validation; bench physics acknowledged as minute-scale | `03-master-integration.md` Part 3 |
+| 2026-10-28 | One-click auto-launcher (run_project.py / run_project.bat) placed at root, shared/, and kit directories | Enables one-click launch with automated port cleaning, db initialization, hot-reloading, and browser opening | User request |
 
 ## Open questions for the human
 None. Master Integration and Demo Readiness (Phases A–F, Phases 1–6, Parts 1–5) are complete and verified.
