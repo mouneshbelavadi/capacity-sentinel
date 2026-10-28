@@ -1,0 +1,62 @@
+# Real bench topology definition for RackSense site-01
+# No generated node names, no random tenants.
+site:
+  site_id: "site-01"
+  label: "Bench Data Center Site 01"
+
+tenants:
+  - tenant_id: "t-alpha"
+    label: "Alpha Systems"
+    contact: "ops@alpha.local"
+  - tenant_id: "t-beta"
+    label: "Beta Compute"
+    contact: "ops@beta.local"
+  - tenant_id: "t-gamma"
+    label: "Gamma Analytics"
+    contact: "ops@gamma.local"
+
+racks:
+  - rack_id: "rack-01"
+    label: "Rack 01"
+    row: 0
+    col: 0
+  - rack_id: "rack-02"
+    label: "Rack 02"
+    row: 0
+    col: 1
+
+nodes:
+  - node_id: "r1-n1"
+    rack_id: "rack-01"
+    fw: "0.3.1"
+    status: "UNKNOWN"
+  - node_id: "r2-n1"
+    rack_id: "rack-02"
+    fw: "0.3.1"
+    status: "UNKNOWN"
+
+slots:
+  - slot_id: "rack-01-u12"
+    rack_id: "rack-01"
+    u_start: 12
+    u_height: 2
+    tenant_id: "t-alpha"
+    node_id: "r1-n1"
+  - slot_id: "rack-01-u20"
+    rack_id: "rack-01"
+    u_start: 20
+    u_height: 4
+    tenant_id: "t-beta"
+    node_id: null
+  - slot_id: "rack-02-u10"
+    rack_id: "rack-02"
+    u_start: 10
+    u_height: 2
+    tenant_id: "t-beta"
+    node_id: "r2-n1"
+  - slot_id: "rack-02-u18"
+    rack_id: "rack-02"
+    u_start: 18
+    u_height: 4
+    tenant_id: "t-gamma"
+    node_id: null

@@ -1,0 +1,24 @@
+# Mosquitto Broker Configuration for Arduino UNO Q / RackSense Edge Server
+# Port 1883 listener
+listener 1883 0.0.0.0
+
+# Persistence settings
+persistence true
+persistence_location /var/lib/mosquitto/
+autosave_interval 1800
+
+# Authentication: anonymous access forbidden; node-authenticated credentials
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+
+# Logging
+log_dest file /var/log/mosquitto/mosquitto.log
+log_dest stdout
+log_type error
+log_type warning
+log_type notice
+log_type information
+
+# Connection limits and buffer sizes for edge hardware
+max_queued_messages 1000
+message_size_limit 1048576

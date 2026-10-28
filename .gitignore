@@ -18,6 +18,7 @@ tools/cards.yaml
 *.sqlite
 *.sqlite3
 data/
+backend/data/
 synthetic_out/
 
 # Python
