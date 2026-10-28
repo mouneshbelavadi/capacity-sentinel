@@ -1,0 +1,44 @@
+# Real bench users and RFID card credentials for RackSense
+# No random users, no generated passwords.
+users:
+  - user_id: "u-super1"
+    username: "super1"
+    password: "SuperSecretPassword123!"
+    role: "SUPER_USER"
+    tenant_id: null
+    display_name: "Super User (Lead SRE)"
+
+  - user_id: "u-op1"
+    username: "op1"
+    password: "OperatorPassword123!"
+    role: "OPERATOR"
+    tenant_id: null
+    display_name: "Shift Operator"
+
+  - user_id: "u-alpha"
+    username: "alpha_user"
+    password: "AlphaPassword123!"
+    role: "TENANT"
+    tenant_id: "t-alpha"
+    display_name: "Alpha Systems Lead"
+
+  - user_id: "u-beta"
+    username: "beta_user"
+    password: "BetaPassword123!"
+    role: "TENANT"
+    tenant_id: "t-beta"
+    display_name: "Beta Compute Lead"
+
+cards:
+  - uid: "04:A1:B2:C3:D4"
+    user_id: "u-op1"
+    active: 1
+    max_risk_tier: 2
+    issued_at: "2026-10-28T00:00:00Z"
+
+  - uid: "04:E5:F6:17:28"
+    user_id: "u-super1"
+    active: 1
+    max_risk_tier: 3
+    issued_at: "2026-10-28T00:00:00Z"
+
