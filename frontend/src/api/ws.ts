@@ -80,6 +80,14 @@ let currentSubscription: SubscriptionConfig = { racks: [], metrics: [] };
 let resyncCallbacks = new Set<() => Promise<void> | void>();
 let changepointCallbacks = new Set<(cp: ChangePoint) => void>();
 
+// Stable changepoint subscription function
+export const subscribeChangepoint = (cb: (cp: ChangePoint) => void) => {
+  changepointCallbacks.add(cb);
+  return () => {
+    changepointCallbacks.delete(cb);
+  };
+};
+
 // 500 ms batch buffer
 let incomingFrameBuffer: WebSocketServerFrame[] = [];
 
@@ -470,11 +478,6 @@ export function useWebSocket(config?: SubscriptionConfig, onResync?: () => Promi
     ...internalState,
     subscribe: sendSubscribe,
     triggerEscalationPulse,
-    onChangepoint: (cb: (cp: ChangePoint) => void) => {
-      changepointCallbacks.add(cb);
-      return () => {
-        changepointCallbacks.delete(cb);
-      };
-    },
+    onChangepoint: subscribeChangepoint,
   };
 }

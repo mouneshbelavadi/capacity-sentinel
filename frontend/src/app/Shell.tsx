@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore, formatRoleLabel } from './authStore';
 import { useWebSocket } from '../api/ws';
 import {
@@ -56,6 +56,9 @@ export const Shell: React.FC<ShellProps> = ({
     ts: string;
   } | null>(null);
 
+  // Persistent timer ref with unmount cleanup
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     const unsub = onChangepoint((cp) => {
       let fact: string | undefined;
@@ -67,12 +70,22 @@ export const Shell: React.FC<ShellProps> = ({
       const shift = `Regime change on ${cp.node_id} (${cp.metric}) — forecast window reset.`;
       setChangepointToast({ fact, shift, ts: new Date().toLocaleTimeString() });
 
-      const timer = setTimeout(() => {
-        setChangepointToast((curr) => (curr?.shift === shift ? null : curr));
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+      toastTimerRef.current = setTimeout(() => {
+        setChangepointToast(null);
+        toastTimerRef.current = null;
       }, 7000);
-      return () => clearTimeout(timer);
     });
-    return unsub;
+
+    return () => {
+      unsub();
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+        toastTimerRef.current = null;
+      }
+    };
   }, [onChangepoint]);
 
   const isSuperUser = user?.role === 'SUPER_USER';
@@ -117,7 +130,9 @@ export const Shell: React.FC<ShellProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search racks, slots, tenants, proposals..."
-              className="w-full h-8 pl-8 pr-3 text-12 rounded border border-border bg-surface-sunken text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+              disabled
+              title="Global search across entities is disabled; use page-level filters."
+              className="w-full h-8 pl-8 pr-3 text-12 rounded border border-border bg-surface-sunken text-ink placeholder:text-ink-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Global search"
             />
             <Search
@@ -274,7 +289,13 @@ export const Shell: React.FC<ShellProps> = ({
             </div>
             <button
               type="button"
-              onClick={() => setChangepointToast(null)}
+              onClick={() => {
+                if (toastTimerRef.current) {
+                  clearTimeout(toastTimerRef.current);
+                  toastTimerRef.current = null;
+                }
+                setChangepointToast(null);
+              }}
               className="p-1 rounded text-ink-muted hover:text-ink"
               aria-label="Dismiss changepoint toast"
             >

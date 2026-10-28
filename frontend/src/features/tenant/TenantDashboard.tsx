@@ -9,6 +9,7 @@ import { EmptyState } from '../../design/EmptyState';
 import { ErrorState } from '../../design/ErrorState';
 import { StatusBadge } from '../../design/StatusBadge';
 import { RackHallCanvas } from '../hall/RackHallCanvas';
+import { VisualManagementView } from '../hall/VisualManagementView';
 import { RackSummaryCard } from '../datacenter/RackSummaryCard';
 import { SlotDetailPanel } from '../topology/SlotDetailPanel';
 import { Server, Activity, Shield, Lock, ChevronRight } from 'lucide-react';
@@ -20,7 +21,11 @@ interface TenantActivityItem {
   node_id: string;
 }
 
-export const TenantDashboard: React.FC = () => {
+export interface TenantDashboardProps {
+  onlyRacks?: boolean;
+}
+
+export const TenantDashboard: React.FC<TenantDashboardProps> = ({ onlyRacks = false }) => {
   const { user } = useAuthStore();
   const tenantLabel = user?.display_name || 'Beta Compute (Tenant)';
   const tenantId = user?.tenant_id || 't-beta';
@@ -118,26 +123,28 @@ export const TenantDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6" data-testid="tenant-dashboard">
-      {/* Isolation Status Banner */}
-      <div className="p-4 bg-surface border border-border rounded-lg shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded bg-primary-weak/40 border border-primary/20 text-primary">
-            <Shield size={18} strokeWidth={1.5} />
+      {/* Isolation Status Banner (Omitted on Racks-only page) */}
+      {!onlyRacks && (
+        <div className="p-4 bg-surface border border-border rounded-lg shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded bg-primary-weak/40 border border-primary/20 text-primary">
+              <Shield size={18} strokeWidth={1.5} />
+            </div>
+            <div>
+              <h2 className="text-14 font-semibold text-ink">
+                Scoped to tenant: {tenantLabel}
+              </h2>
+              <p className="text-12 text-ink-2 mt-0.5">
+                Authorized scope: <code className="font-mono text-primary font-medium">{tenantId}</code> • {ownedSlotsCount} active server bays
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-14 font-semibold text-ink">
-              Scoped to tenant: {tenantLabel}
-            </h2>
-            <p className="text-12 text-ink-2 mt-0.5">
-              Authorized scope: <code className="font-mono text-primary font-medium">{tenantId}</code> • {ownedSlotsCount} active server bays
-            </p>
+          <div className="flex items-center gap-2 self-start sm:self-auto text-11 font-mono text-ink-muted bg-surface-sunken px-2.5 py-1 rounded border border-border">
+            <Lock size={12} strokeWidth={1.5} />
+            <span>Server Isolation Active</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 self-start sm:self-auto text-11 font-mono text-ink-muted bg-surface-sunken px-2.5 py-1 rounded border border-border">
-          <Lock size={12} strokeWidth={1.5} />
-          <span>Server Isolation Active</span>
-        </div>
-      </div>
+      )}
 
       {loading ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 animate-pulse">
@@ -151,7 +158,7 @@ export const TenantDashboard: React.FC = () => {
           message={error.message || 'Unable to retrieve tenant topology'}
           detail={error.detail}
         />
-      ) : (
+      ) : onlyRacks ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Rail (3 cols): Rack list */}
           <aside className="lg:col-span-3 space-y-4">
@@ -201,7 +208,6 @@ export const TenantDashboard: React.FC = () => {
                         </span>
                       </button>
 
-                      {/* Accessible Keyboard-navigable slot list for tenant's allocated bays */}
                       {isSelected && (
                         <div className="ml-3 pl-2.5 border-l border-border/80 space-y-1 py-1" role="list" aria-label={`${rack.label} allocated bays`}>
                           {mySlotsInRack.map((slot) => {
@@ -239,18 +245,9 @@ export const TenantDashboard: React.FC = () => {
                 })}
               </div>
             </div>
-
-            {/* Privacy Policy Callout */}
-            <div className="p-4 rounded-lg border border-border bg-surface-sunken space-y-2 text-12">
-              <span className="font-semibold text-ink block">Tenant Isolation Guarantee</span>
-              <p className="text-ink-2 leading-relaxed text-11">
-                You receive full rack physical geometry so the facility layout renders accurately.
-                Neighbouring bays remain shielded with neutral hatch, no identifiers, and status UNKNOWN.
-              </p>
-            </div>
           </aside>
 
-          {/* Centre (6 cols): Live 3D Rack Hall with Scoped Foreign Hatching */}
+          {/* Centre (6 cols): 3D Hall */}
           <main className="lg:col-span-6 space-y-4">
             <Card
               title="Live 3D Data Hall"
@@ -285,26 +282,156 @@ export const TenantDashboard: React.FC = () => {
             )}
           </aside>
         </div>
+      ) : (
+        <div className="space-y-6">
+          {/* Visual Management Hero View */}
+          <VisualManagementView
+            topology={topology}
+            selectedRackId={selectedRackId}
+            selectedSlot={selectedSlot}
+            onSelectSlot={handleSelectSlot}
+            isTenant={true}
+            tenantId={tenantId}
+            nodeStatuses={nodeStatuses}
+            escalationSlotIds={escalationSlotIds}
+            telemetry={telemetry}
+            isStale={wsStatus === 'stale'}
+          />
+
+          {/* Operational Secondary Panels: Assigned Racks & Selected Rack Summary */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <aside className="lg:col-span-4 space-y-4">
+              <div className="border border-border rounded-lg bg-surface shadow-card overflow-hidden">
+                <div className="px-4 py-3 bg-surface-sunken border-b border-border flex items-center justify-between">
+                  <span className="text-12 font-semibold uppercase tracking-wider text-ink-2">
+                    Assigned Racks
+                  </span>
+                  <span className="text-11 font-mono text-ink-muted">
+                    {topology?.racks.length || 0} Racks
+                  </span>
+                </div>
+                <div className="p-2 space-y-1">
+                  {topology?.racks.map((rack) => {
+                    const isSelected = selectedRackId === rack.rack_id;
+                    const mySlotsInRack = rack.slots.filter((s) => s.tenant_id === tenantId);
+
+                    return (
+                      <div key={rack.rack_id} className="space-y-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedRackId(rack.rack_id);
+                            if (mySlotsInRack.length > 0 && selectedRack?.rack_id !== rack.rack_id) {
+                              handleSelectSlot(mySlotsInRack[0], rack);
+                            }
+                          }}
+                          className={`w-full p-2.5 rounded text-left transition-colors flex items-center justify-between ${
+                            isSelected
+                              ? 'bg-primary-weak/40 border-l-2 border-primary font-medium text-primary'
+                              : 'hover:bg-surface-hover text-ink'
+                          }`}
+                          aria-expanded={isSelected}
+                          aria-label={`Select ${rack.label}`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Server size={16} strokeWidth={1.5} className={isSelected ? 'text-primary' : 'text-ink-2'} />
+                            <div>
+                              <div className="text-12 font-semibold">{rack.label}</div>
+                              <div className="text-11 font-mono text-ink-muted">
+                                {mySlotsInRack.length} bay{mySlotsInRack.length === 1 ? '' : 's'} allocated
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-11 font-mono text-ink-2 font-medium">
+                            Row {rack.position.row}
+                          </span>
+                        </button>
+
+                        {isSelected && (
+                          <div className="ml-3 pl-2.5 border-l border-border/80 space-y-1 py-1" role="list" aria-label={`${rack.label} allocated bays`}>
+                            {mySlotsInRack.map((slot) => {
+                              const isSlotSelected = selectedSlot?.slot_id === slot.slot_id;
+                              const liveNode = slot.node_id ? nodeStatuses[slot.node_id] : undefined;
+                              const effectiveStatus: Status = liveNode?.status === 'offline' ? 'OFFLINE' : slot.status;
+
+                              return (
+                                <button
+                                  key={slot.slot_id}
+                                  type="button"
+                                  onClick={() => handleSelectSlot(slot, rack)}
+                                  className={`w-full px-2 py-1.5 rounded text-left text-11 flex items-center justify-between transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary ${
+                                    isSlotSelected
+                                      ? 'bg-primary text-white font-medium shadow-xs'
+                                      : 'hover:bg-surface-hover text-ink-2'
+                                  }`}
+                                  aria-label={`Select bay U${slot.u_start} (${slot.node_id || 'unlet'}) with status ${effectiveStatus}`}
+                                >
+                                  <div className="flex items-center gap-1.5 truncate">
+                                    <ChevronRight size={12} strokeWidth={1.5} className={isSlotSelected ? 'text-white' : 'text-ink-muted'} />
+                                    <span className="font-mono font-medium">U{slot.u_start}</span>
+                                    <span className={`truncate text-10 ${isSlotSelected ? 'text-white/80' : 'text-ink-muted'}`}>
+                                      ({slot.node_id || 'unlet'})
+                                    </span>
+                                  </div>
+                                  <StatusBadge status={effectiveStatus} size="sm" />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Privacy Policy Callout */}
+              <div className="p-4 rounded-lg border border-border bg-surface-sunken space-y-2 text-12">
+                <span className="font-semibold text-ink block">Tenant Isolation Guarantee</span>
+                <p className="text-ink-2 leading-relaxed text-11">
+                  You receive full rack physical geometry so the facility layout renders accurately.
+                  Neighbouring bays remain shielded with neutral hatch, no identifiers, and status UNKNOWN.
+                </p>
+              </div>
+            </aside>
+
+            {/* Right Side (8 cols): Selected Rack Summary */}
+            <main className="lg:col-span-8 space-y-4">
+              {activeRack ? (
+                <RackSummaryCard
+                  rackId={activeRack.rack_id}
+                  rackLabel={activeRack.label}
+                />
+              ) : (
+                <Card title="Rack Summary">
+                  <p className="text-12 text-ink-muted">Select a rack to inspect margins.</p>
+                </Card>
+              )}
+            </main>
+          </div>
+        </div>
       )}
 
-      {/* Bottom: Recent Activity for Tenant */}
-      <Card
-        title="Your Telemetry Events"
-        subtitle="Recent threshold triggers and change-point detections on your assigned nodes"
-      >
-        <DataTable
-          columns={activityColumns}
-          data={tenantActivityItems}
-          keyExtractor={(item) => item.id}
-          emptyState={
-            <EmptyState
-              icon={Activity}
-              title="No Telemetry Events"
-              description="Your hardware nodes are operating within normal thermal and vibration baselines."
-            />
-          }
-        />
-      </Card>
+      {/* Bottom: Recent Activity for Tenant (Omitted on Racks-only page) */}
+      {!onlyRacks && (
+        <Card
+          title="Your Telemetry Events"
+          subtitle="Recent threshold triggers and change-point detections on your assigned nodes"
+        >
+          <DataTable
+            columns={activityColumns}
+            data={tenantActivityItems}
+            keyExtractor={(item) => item.id}
+            emptyState={
+              <EmptyState
+                icon={Activity}
+                title="No Telemetry Events"
+                description="Your hardware nodes are operating within normal thermal and vibration baselines."
+              />
+            }
+          />
+        </Card>
+      )}
 
       {/* Slot and Node Detail Panel */}
       <SlotDetailPanel

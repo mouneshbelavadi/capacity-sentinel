@@ -11,20 +11,29 @@ graph TD
         F_PRIMITIVES["design/primitives (Card, Value, StatusBadge, Chip, KpiTile, DataTable, DetailPanel, EmptyState, ErrorState)"]
         F_CONTRACT["api/contract.ts (Closed Enums & Payloads)"]
         F_CLIENT["api/client.ts (Fetch Wrapper & Drift Check)"]
-        F_WS["api/ws.ts (Single WebSocket Hook, 500ms Batching Buffer, Reconnect Backoff, Heartbeat)"]
+        F_WS["api/ws.ts (Single WebSocket Hook, 500ms Batching Buffer, Stable onChangepoint, Reconnect Backoff, Heartbeat)"]
         F_AUTH["app/authStore.ts (Zustand Auth Store)"]
-        F_SHELL["app/Shell.tsx (56px Bar, Live Indicator, Changepoint Toast, Nav, Content)"]
+        F_SHELL["app/Shell.tsx (56px Bar, Live Indicator, Changepoint Toast with Ref Cleanup, Nav, Content)"]
         F_LOGIN["features/auth/LoginPage.tsx"]
-        F_HALL["features/hall/RackHallCanvas.tsx (3D WebGL Hall, Demand Frameloop, Orbit, WebGL Fallback)"]
-        F_RACK3D["features/hall/Rack3D.tsx (Chassis Box, Vertical Rails, Slot Stacking)"]
-        F_SLOT3D["features/hall/Slot3D.tsx (Status Colors, Crosshatch Foreign, Html Badges, 600ms Pulse)"]
+        F_HALL["features/hall/RackHallCanvas.tsx (3D WebGL Hall, Demand Frameloop, Camera Presets, Overhead Fiber Raceway, Perforated Tiles)"]
+        F_VMV["features/hall/VisualManagementView.tsx (Industrial DCIM Command Center Layout, TwinThings/IOC Inspired)"]
+        F_TIMELINE["features/hall/ForecastTimelineBar.tsx (Interactive Forecast Scrubber, Live vs ETS Horizon, Auto-Play)"]
+        F_OVERVIEW["features/hall/OverviewPanel.tsx (Racks, Nodes, Sensors, Tenants)"]
+        F_DONUT["features/hall/ClassificationDonut.tsx (Sensor Distribution Ring Chart)"]
+        F_BARS["features/hall/StatisticsBars.tsx (Rack Capacity, Thermal Margin, Power Margin)"]
+        F_GAUGES["features/hall/ConsumptionGauges.tsx (PUE, IT Power, Total Power, Empty State)"]
+        F_STATUS["features/hall/StatusDistribution.tsx (OK/WARN/CRIT/OFFLINE Stacked Bar & Filter)"]
+        F_TRENDS["features/hall/TrendSparkline.tsx (AreaChart Worst-Margin Sparkline)"]
+        F_TABS["features/hall/CategoryTabs.tsx (Telemetry Category Filter Chips)"]
+        F_RACK3D["features/hall/Rack3D.tsx (Chassis Frame, EIA-310 Rails, Plinth, Canopy, Side Panels, Standby Server Blades, Billboard)"]
+        F_SLOT3D["features/hall/Slot3D.tsx (Brushed Steel Chassis, Pull Handles, Hot-Swap Drive Caddies, Status Light Bar, LEDs, Tooltip)"]
         F_HATCH["features/hall/hatchTexture.ts (Canvas 45° Repeating Diagonal Texture)"]
         F_RACK_GRID["features/datacenter/RackGrid.tsx (2D Physical Elevation Fallback, Hatch)"]
         F_RACK_SUMMARY["features/datacenter/RackSummaryCard.tsx (Worst Margin, Nodes Ratio)"]
         F_SLOT_DETAIL["features/topology/SlotDetailPanel.tsx (Sparklines, Honest Provenance, AiPanel Mounted)"]
         F_ISOLATION["features/datacenter/IsolationSplitView.tsx (Dual-Token Live Proof)"]
-        F_DC["features/datacenter/DataCenterDashboard.tsx (Live 3D Hall, Keyboard Rail, Audits)"]
-        F_TENANT["features/tenant/TenantDashboard.tsx (Live 3D Hall, Shielded Foreign Slots)"]
+        F_DC["features/datacenter/DataCenterDashboard.tsx (Visual Management View, Live 3D Hall, Keyboard Rail, Audits, /datacenter/racks Mode)"]
+        F_TENANT["features/tenant/TenantDashboard.tsx (Visual Management View, Live 3D Hall, Shielded Foreign Slots, /tenant/racks Mode)"]
         F_ACCESS["features/access/AccessControl.tsx"]
         F_FORECAST["features/forecast/ForecastView.tsx (Capacity & Headroom Analysis Page)"]
         F_CONE["features/forecast/ForecastConeChart.tsx (Recharts ComposedChart, Stat Tile, Table View)"]
@@ -37,8 +46,8 @@ graph TD
         F_PROPOSAL_CARD["features/proposals/ProposalCard.tsx (Action Mapping, Emoji Stripping, Revisions Diff, Audited Chat, Server Countdown, TFT Mirror, Terminal States)"]
         F_STEPPER["features/proposals/ProposalStepper.tsx (Proposed -> Discussing -> Approved, waiting for tap -> Authorized, with Rejected/Expired off-ramps)"]
         F_APPROVALS["features/proposals/ApprovalsView.tsx (Facility Approvals Queue, Status Filtering, Review Side Panel)"]
-        F_AUDIT["features/audit/AuditView.tsx (Cryptographic SHA-256 Chain Verification, Tamper Detection, Data Grid, Mono Hash Copy, Detail Panel)"]
-        F_APP["App.tsx (Role-based Routing, Redirection, Mismatch Banner, Approvals & Audit Navigation)"]
+        F_AUDIT["features/audit/AuditView.tsx (Cryptographic SHA-256 Chain Verification, Tamper Detection, Single-mount Fetch, Data Grid, Mono Hash Copy, Detail Panel)"]
+        F_APP["App.tsx (Role-based Routing, Redirection, Mismatch Banner, Approvals, Audit & Racks Sub-route Navigation)"]
 
         F_PRIMITIVES --> F_CONTRACT
         F_CLIENT --> F_CONTRACT
@@ -49,6 +58,15 @@ graph TD
         F_SHELL --> F_AUTH
         F_SHELL --> F_WS
         F_LOGIN --> F_AUTH
+        F_VMV --> F_TIMELINE
+        F_VMV --> F_HALL
+        F_VMV --> F_OVERVIEW
+        F_VMV --> F_DONUT
+        F_VMV --> F_BARS
+        F_VMV --> F_GAUGES
+        F_VMV --> F_STATUS
+        F_VMV --> F_TRENDS
+        F_VMV --> F_TABS
         F_HALL --> F_RACK3D
         F_HALL --> F_RACK_GRID
         F_RACK3D --> F_SLOT3D
@@ -66,11 +84,13 @@ graph TD
         F_ISOLATION --> F_CLIENT
         F_ISOLATION --> F_CONTRACT
         F_ISOLATION --> F_RACK_GRID
+        F_DC --> F_VMV
         F_DC --> F_HALL
         F_DC --> F_RACK_SUMMARY
         F_DC --> F_SLOT_DETAIL
         F_DC --> F_ISOLATION
         F_DC --> F_PRIMITIVES
+        F_TENANT --> F_VMV
         F_TENANT --> F_HALL
         F_TENANT --> F_RACK_SUMMARY
         F_TENANT --> F_SLOT_DETAIL

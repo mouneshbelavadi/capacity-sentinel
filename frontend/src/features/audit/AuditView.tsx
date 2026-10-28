@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { AuditRow, AuditVerifyResponse, AuditResponse } from '../../api/contract';
 import { apiClient, ApiClientError } from '../../api/client';
 import { useAuthStore } from '../../app/authStore';
@@ -40,6 +40,10 @@ export const AuditView: React.FC = () => {
   const [selectedRow, setSelectedRow] = useState<AuditRow | null>(null);
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
 
+  // Stable ref for rows to prevent verifyChain identity thrashing
+  const rowsRef = useRef<AuditRow[]>(rows);
+  rowsRef.current = rows;
+
   // Fetch audit rows
   const fetchAuditRows = useCallback(async () => {
     try {
@@ -68,14 +72,14 @@ export const AuditView: React.FC = () => {
       // If error occurs, create failure result
       setVerification({
         ok: false,
-        rows_checked: rows.length,
-        head_hash: rows[0]?.hash || 'unknown',
+        rows_checked: rowsRef.current.length,
+        head_hash: rowsRef.current[0]?.hash || 'unknown',
         broken_at: 903,
       });
     } finally {
       setIsVerifying(false);
     }
-  }, [rows]);
+  }, []);
 
   useEffect(() => {
     setLoading(true);

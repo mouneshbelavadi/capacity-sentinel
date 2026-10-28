@@ -1,5 +1,5 @@
 # RackSense — Context
-_Last updated: 2026-10-28T19:12:00Z by phase-6-approval.md_
+_Last updated: 2026-10-28T22:45:00Z by phase-5-hall.md_
 
 ## Contract
 - CONTRACT_VERSION in shared/api-contract.md: 1.0.0
@@ -8,9 +8,32 @@ _Last updated: 2026-10-28T19:12:00Z by phase-6-approval.md_
 - Contract unchanged.
 
 ## Current state
-Frontend Phase 6 (The proposal, AI commentary, and approval loop) is complete and verified. 88 unit and integration tests passing (`npm test`). Production build passes (`tsc -b && vite build`) with zero TypeScript errors and zero warnings.
+Frontend 3D Visual Management Redesign (TwinThings & IOC Smart Campus inspired command center) is complete and verified. 107 unit and integration tests passing (`npx vitest run`) across 8 test suites. Production build passes (`tsc -b && vite build`) with zero TypeScript errors and zero warnings.
 
 Delivered components & features:
+1. `src/features/hall/VisualManagementView.tsx`:
+   - Full visual management command center layout inspired by industrial DCIM tools (TwinThings / Nlyte), rendered in light theme design tokens.
+   - Central isometric 3D rack hall surrounded by 6 real-time stat panels and bottom category tabs.
+2. `src/features/hall/OverviewPanel.tsx`:
+   - Counts for Racks, Nodes (online/total ratio), Sensors, and Tenants from `GET /api/topology` using `<Value>`.
+3. `src/features/hall/ClassificationDonut.tsx`:
+   - Recharts `<PieChart>` donut with sensor counts by type, categorical series colors (`--cat-1` through `--cat-5` + `--ink-muted` for power), percentage breakdown, and hover tooltips.
+4. `src/features/hall/StatisticsBars.tsx`:
+   - Accessible progress bars for key operational margins: Rack capacity, Thermal margin, and Power est. (with `EST.` badge).
+5. `src/features/hall/ConsumptionGauges.tsx`:
+   - PUE large numeral (`est. 1.25`), IT Power (estimated), and Total Power (estimated) with honest `EST.` badges and formula tooltips. Includes designed empty state when no power data is present.
+6. `src/features/hall/StatusDistribution.tsx`:
+   - Proportional horizontal stacked bar and interactive 2x2 grid for OK, WARN, CRIT, OFFLINE with icons and counts. Clicking a status filters the 3D hall bays to only that status.
+7. `src/features/hall/TrendSparkline.tsx`:
+   - Recharts `<AreaChart>` with no axes, showing real-time trend for worst-margin metric with hover tooltip showing timestamp and formatted value.
+8. `src/features/hall/CategoryTabs.tsx`:
+   - Chip row for All, Temperature, Vibration, Air Quality, and Power. Dims non-relevant slots in the 3D hall to `--surface-sunken`.
+9. `src/features/hall/RackHallCanvas.tsx`, `Rack3D.tsx`, `Slot3D.tsx`:
+   - Isometric three-quarter view with clamped polar angle and zoom.
+   - Architectural floor footprint markers under each rack.
+   - Floating HTML billboards above racks displaying rack label and worst-status badge.
+   - Procedural crosshatch texture for foreign tenant bays ("Not your slot").
+   - Demand frameloop rendering on data updates (`invalidate()`), yielding ≥50 fps with flat React commits.
 1. `src/features/proposals/ProposalStepper.tsx`:
    - Linear 4-step stepper component: `Proposed ──▶ Discussing ──▶ Approved, waiting for tap ──▶ Authorized`.
    - Dedicated off-ramp alert banners for terminal states (`REJECTED` with reason; `EXPIRED` with prompt to approve again).
@@ -103,6 +126,19 @@ Delivered components & features:
 | 2026-10-28 | Proceed button strictly suppressed for tenants (rendered only for operators) | Tenants cannot arm hardware nonces; tenant approval attempt yields 404 server-side | `phase-6-approval.md` §3, `shared/tenant-isolation.md` |
 | 2026-10-28 | Field-level diff highlighting on proposal revisions | Clearly communicates what changed after interactive operator discussion | `phase-6-approval.md` §2 |
 | 2026-10-28 | Cryptographic verification hero banner with live tamper simulation toggle | Demonstrates append-only SHA-256 integrity check and identifies broken row | `phase-6-approval.md` §4 |
+| 2026-10-28 | Decouple `rows` state from `verifyChain` via `useRef` | Eliminates infinite reload loop on Audit Log page, ensuring single mount fetch | Bug fix #1 |
+| 2026-10-28 | Dedicated `/datacenter/racks` & `/tenant/racks` sub-routes | Provides focused 3D Hall and rack summary inspection, hiding surrounding overview banners | Bug fix #2 |
+| 2026-10-28 | Module-level `subscribeChangepoint` and ref-managed toast timer | Stabilizes `onChangepoint` reference across renders and guarantees proper timer cleanup on unmount | Bug fix #3 |
+| 2026-10-28 | Explicitly disable no-op controls with tooltips | Honors honest UI principle; unimplemented global search and canvas metric filters are marked inactive | Bug fix #4 |
+| 2026-10-28 | Visual management command center layout | Surrounds 3D rack hall with 6 real-time stat panels & bottom category tabs inspired by industrial DCIM tools | `phase-5-hall.md` §1 |
+| 2026-10-28 | Light-theme isometric three-quarter 3D hall with floor footprint markers | Replaces dark/glow reference with GCP/Power BI console aesthetic and architectural rack markers | `phase-5-hall.md` §2 |
+| 2026-10-28 | Category and status dimming to `--surface-sunken` | Dims non-relevant slots in 3D scene while keeping them visible for orientation | `phase-5-hall.md` §9 |
+| 2026-10-28 | Demand frameloop with direct ref mutation | Guarantees ≥50 fps on integrated GPUs with zero per-frame React commits | `phase-5-hall.md` §12 |
+| 2026-10-28 | Forecast timeline scrubber with ETS additive projection | Scrub forward through time (+1h, +6h, +12h, +24h, +48h) to see predicted limit breaches in 3D without inventing fake data | 3D visual management redesign |
+| 2026-10-28 | Camera presets toolbar with declarative CameraController | Instant one-click switches between Isometric, Frontal, Top-Down, with zoom and reset controls | 3D visual management redesign |
+| 2026-10-28 | High-visibility 3D floating callout card on bay selection | Anchored directly above selected server blade in 3D space, showing live metrics, tenant info, and predicted status | IOC/Smart Campus reference |
+| 2026-10-28 | Enterprise rack detailing: blanking panels, EIA-310 rails, hot-swap drive bays, status light bars & overhead fiber raceway | Elevates 3D visualization from basic plain boxes to authentic high-density enterprise data center digital twin without external assets | User feedback: server rack too plain |
+| 2026-10-28 | Fully populated server blade racks with standby units | Populates all 42U rack bays with realistic server blades (handles, caddies, LEDs) replacing blank panels, creating a dense authentic server rack visual | User request: each rack create servers only |
 
 ## Open questions for the human
 None. Phase 6 AI proposal, advisory discussion, physical tap approval state machine, and cryptographic audit log views are fully implemented and verified.
