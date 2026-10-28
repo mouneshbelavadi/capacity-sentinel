@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { TopologyResponse, Slot, Rack, Status } from '../../api/contract';
 import { NodeStatusInfo, TelemetryReading } from '../../api/ws';
 import { CategoryTab, TimelineHorizon, getPredictedSlotStatus } from './visualManagementTypes';
@@ -12,6 +12,7 @@ import { TrendSparkline, TrendDataPoint } from './TrendSparkline';
 import { CategoryTabs } from './CategoryTabs';
 import { RackHallCanvas } from './RackHallCanvas';
 import { Card } from '../../design/Card';
+import { Maximize2, Minimize2, Eye, EyeOff } from 'lucide-react';
 
 export interface VisualManagementViewProps {
   topology: TopologyResponse | null;
@@ -41,6 +42,43 @@ export const VisualManagementView: React.FC<VisualManagementViewProps> = ({
   const [categoryFilter, setCategoryFilter] = useState<CategoryTab>('all');
   const [statusFilter, setStatusFilter] = useState<Status | null>(null);
   const [activeHorizon, setActiveHorizon] = useState<TimelineHorizon>('now');
+
+  // Total View Full Page Expansion State
+  const [isTotalView, setIsTotalView] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('view') === 'total';
+    }
+    return false;
+  });
+  const [showSideMetrics, setShowSideMetrics] = useState<boolean>(true);
+
+  // Synchronize isTotalView state with URL query parameter
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const url = new URL(window.location.href);
+      if (isTotalView) {
+        url.searchParams.set('view', 'total');
+      } else {
+        url.searchParams.delete('view');
+      }
+      window.history.replaceState({}, '', url.toString());
+    } catch {
+      // Safe fallback in test/headless environments
+    }
+  }, [isTotalView]);
+
+  // Handle ESC key to exit Total View mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isTotalView) {
+        setIsTotalView(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isTotalView]);
 
   // Calculate deployment overview metrics from topology
   const {
@@ -206,6 +244,162 @@ export const VisualManagementView: React.FC<VisualManagementViewProps> = ({
     return count;
   }, [topology, activeHorizon, nodeStatuses]);
 
+  if (isTotalView) {
+    return (
+      <div
+        className="fixed inset-0 z-50 bg-canvas flex flex-col overflow-hidden"
+        data-testid="visual-management-total-view"
+      >
+        {/* 1. Full-Screen 3D WebGL Hall Canvas (Background) */}
+        <div className="absolute inset-0 w-full h-full">
+          <RackHallCanvas
+            racks={topology ? topology.racks : []}
+            selectedRackId={selectedRackId}
+            selectedSlotId={selectedSlot?.slot_id}
+            onSelectSlot={onSelectSlot}
+            isTenant={isTenant}
+            tenantId={tenantId}
+            nodeStatuses={nodeStatuses}
+            escalationSlotIds={escalationSlotIds}
+            telemetryByNodeMetric={telemetry}
+            isStale={isStale}
+            categoryFilter={categoryFilter}
+            statusFilter={statusFilter}
+            horizon={activeHorizon}
+            isTotalView={true}
+            onToggleTotalView={() => setIsTotalView(false)}
+            heightClass="h-full w-full"
+          />
+        </div>
+
+        {/* 2. Top Floating Header Bar */}
+        <header className="relative z-30 flex items-center justify-between px-4 py-2.5 bg-surface/90 backdrop-blur-md border-b border-border shadow-xs pointer-events-auto">
+          {/* Left: Mode Title & Metrics Toggle */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+              <h2 className="text-13 font-semibold uppercase tracking-wider text-ink">
+                3D Visual Management · Total View
+              </h2>
+            </div>
+            <div className="h-4 w-px bg-border" />
+            <button
+              type="button"
+              onClick={() => setShowSideMetrics((prev) => !prev)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface border border-border text-11 font-medium text-ink hover:bg-surface-hover transition-colors shadow-xs"
+              title="Toggle left and right metrics side panels"
+              data-testid="toggle-side-metrics-btn"
+            >
+              {showSideMetrics ? (
+                <>
+                  <EyeOff size={13} strokeWidth={1.5} className="text-ink-muted" />
+                  <span>Hide Metrics</span>
+                </>
+              ) : (
+                <>
+                  <Eye size={13} strokeWidth={1.5} className="text-primary" />
+                  <span>Show Metrics</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Center: Forecast Timeline Bar Scrubber */}
+          <div className="flex-1 max-w-xl mx-4">
+            <ForecastTimelineBar
+              activeHorizon={activeHorizon}
+              onChangeHorizon={setActiveHorizon}
+              predictedBreaches={predictedBreaches}
+            />
+          </div>
+
+          {/* Right: Exit Total View Button */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsTotalView(false)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-white text-12 font-medium hover:bg-primary-hover transition-colors shadow-xs"
+              title="Exit Total View mode and return to dashboard (Esc)"
+              data-testid="exit-total-view-btn"
+            >
+              <Minimize2 size={14} strokeWidth={1.5} />
+              <span>Exit Total View</span>
+              <kbd className="ml-1 px-1 py-0.5 rounded bg-white/20 text-[10px] font-mono">Esc</kbd>
+            </button>
+          </div>
+        </header>
+
+        {/* 3. Left Floating Metrics Overlay Column */}
+        {showSideMetrics && (
+          <aside
+            className="absolute top-16 left-4 bottom-14 w-80 z-20 flex flex-col gap-3 overflow-y-auto pointer-events-none pr-1.5 pb-2 scrollbar-thin"
+            data-testid="total-view-left-metrics"
+          >
+            <div className="pointer-events-auto shadow-card rounded-lg bg-surface/95 backdrop-blur-md border border-border overflow-hidden">
+              <OverviewPanel
+                rackCount={rackCount}
+                nodesOnline={nodesOnline}
+                nodesTotal={nodesTotal}
+                sensorCount={sensorCount}
+                tenantCount={tenantCount}
+                isTenant={isTenant}
+              />
+            </div>
+            <div className="pointer-events-auto shadow-card rounded-lg bg-surface/95 backdrop-blur-md border border-border overflow-hidden">
+              <ClassificationDonut distribution={sensorDistribution} />
+            </div>
+            <div className="pointer-events-auto shadow-card rounded-lg bg-surface/95 backdrop-blur-md border border-border overflow-hidden">
+              <StatisticsBars
+                rackCapacityPct={rackCapacityPct}
+                thermalMarginPct={thermalMarginPct}
+                powerMarginPct={powerMarginPct}
+              />
+            </div>
+          </aside>
+        )}
+
+        {/* 4. Right Floating Metrics Overlay Column */}
+        {showSideMetrics && (
+          <aside
+            className="absolute top-16 right-4 bottom-14 w-80 z-20 flex flex-col gap-3 overflow-y-auto pointer-events-none pl-1.5 pb-2 scrollbar-thin"
+            data-testid="total-view-right-metrics"
+          >
+            <div className="pointer-events-auto shadow-card rounded-lg bg-surface/95 backdrop-blur-md border border-border overflow-hidden">
+              <ConsumptionGauges
+                itPowerWatts={itPowerWatts}
+                pue={1.25}
+                hasPowerData={true}
+              />
+            </div>
+            <div className="pointer-events-auto shadow-card rounded-lg bg-surface/95 backdrop-blur-md border border-border overflow-hidden">
+              <StatusDistribution
+                okCount={statusCounts.ok}
+                warnCount={statusCounts.warn}
+                critCount={statusCounts.crit}
+                offlineCount={statusCounts.offline}
+                selectedStatus={statusFilter}
+                onSelectStatus={setStatusFilter}
+              />
+            </div>
+            <div className="pointer-events-auto shadow-card rounded-lg bg-surface/95 backdrop-blur-md border border-border overflow-hidden">
+              <TrendSparkline
+                data={trendData}
+                metricLabel="Inlet Temperature"
+                unit="°C"
+                worstNodeId="r1-n1"
+              />
+            </div>
+          </aside>
+        )}
+
+        {/* 5. Bottom Floating Category Tabs Bar */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-auto shadow-card rounded-md bg-surface/90 backdrop-blur-md border border-border px-3 py-1">
+          <CategoryTabs activeTab={categoryFilter} onSelectTab={setCategoryFilter} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4" data-testid="visual-management-view">
       {/* 3-Column Layout: Left Stat Panels, Centre 3D Hall (Hero), Right Stat Panels */}
@@ -242,6 +436,18 @@ export const VisualManagementView: React.FC<VisualManagementViewProps> = ({
                 ? 'Isometric physical spatial hall view with data-driven WebGL rendering'
                 : `Spatial operational forecast (${activeHorizon}) based on declared ETS model`
             }
+            actions={
+              <button
+                type="button"
+                onClick={() => setIsTotalView(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-primary text-white text-11 font-medium hover:bg-primary-hover transition-colors shadow-xs"
+                title="Expand to Full Page Total View with Side Metrics"
+                data-testid="expand-total-view-card-btn"
+              >
+                <Maximize2 size={13} strokeWidth={1.5} />
+                <span>Total View</span>
+              </button>
+            }
             className="flex-1 flex flex-col"
           >
             <RackHallCanvas
@@ -258,6 +464,9 @@ export const VisualManagementView: React.FC<VisualManagementViewProps> = ({
               categoryFilter={categoryFilter}
               statusFilter={statusFilter}
               horizon={activeHorizon}
+              isTotalView={false}
+              onToggleTotalView={() => setIsTotalView(true)}
+              heightClass="h-[580px]"
             />
           </Card>
         </div>

@@ -365,6 +365,75 @@ describe('Phase 5 — Visual Management View & Surrounding Panels', () => {
       expect(screen.getByTestId('status-distribution')).toBeInTheDocument();
       expect(screen.getByTestId('trend-sparkline')).toBeInTheDocument();
       expect(screen.getByTestId('category-tabs')).toBeInTheDocument();
+      expect(screen.getByTestId('expand-total-view-card-btn')).toBeInTheDocument();
+    });
+
+    it('expands to full-page Total View mode with metrics on left and right sides', () => {
+      render(
+        <VisualManagementView
+          topology={mockTopology}
+          selectedRackId="rack-01"
+          selectedSlot={null}
+          onSelectSlot={vi.fn()}
+        />
+      );
+
+      // Expand into Total View
+      const expandBtn = screen.getByTestId('expand-total-view-card-btn');
+      fireEvent.click(expandBtn);
+
+      // Total view full-page container is mounted
+      expect(screen.getByTestId('visual-management-total-view')).toBeInTheDocument();
+      expect(screen.getByText(/3D Visual Management · Total View/i)).toBeInTheDocument();
+
+      // Metrics exist on left and right floating overlay columns
+      expect(screen.getByTestId('total-view-left-metrics')).toBeInTheDocument();
+      expect(screen.getByTestId('total-view-right-metrics')).toBeInTheDocument();
+
+      // Toggle metrics hide/show
+      const toggleMetricsBtn = screen.getByTestId('toggle-side-metrics-btn');
+      expect(screen.getByText('Hide Metrics')).toBeInTheDocument();
+      fireEvent.click(toggleMetricsBtn);
+
+      // Metrics overlay is hidden
+      expect(screen.queryByTestId('total-view-left-metrics')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('total-view-right-metrics')).not.toBeInTheDocument();
+      expect(screen.getByText('Show Metrics')).toBeInTheDocument();
+
+      // Show metrics again
+      fireEvent.click(screen.getByTestId('toggle-side-metrics-btn'));
+      expect(screen.getByTestId('total-view-left-metrics')).toBeInTheDocument();
+      expect(screen.getByTestId('total-view-right-metrics')).toBeInTheDocument();
+
+      // Exit Total View mode via Exit button
+      const exitBtn = screen.getByTestId('exit-total-view-btn');
+      fireEvent.click(exitBtn);
+
+      // Returns to standard dashboard view
+      expect(screen.queryByTestId('visual-management-total-view')).not.toBeInTheDocument();
+      expect(screen.getByTestId('visual-management-view')).toBeInTheDocument();
+    });
+
+    it('exits Total View mode when pressing Escape key', () => {
+      render(
+        <VisualManagementView
+          topology={mockTopology}
+          selectedRackId="rack-01"
+          selectedSlot={null}
+          onSelectSlot={vi.fn()}
+        />
+      );
+
+      // Expand to Total View
+      fireEvent.click(screen.getByTestId('expand-total-view-card-btn'));
+      expect(screen.getByTestId('visual-management-total-view')).toBeInTheDocument();
+
+      // Press Escape
+      fireEvent.keyDown(window, { key: 'Escape' });
+
+      // Exits Total View mode
+      expect(screen.queryByTestId('visual-management-total-view')).not.toBeInTheDocument();
+      expect(screen.getByTestId('visual-management-view')).toBeInTheDocument();
     });
   });
 });

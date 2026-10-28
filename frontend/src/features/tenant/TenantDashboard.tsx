@@ -12,7 +12,7 @@ import { RackHallCanvas } from '../hall/RackHallCanvas';
 import { VisualManagementView } from '../hall/VisualManagementView';
 import { RackSummaryCard } from '../datacenter/RackSummaryCard';
 import { SlotDetailPanel } from '../topology/SlotDetailPanel';
-import { Server, Activity, Shield, Lock, ChevronRight } from 'lucide-react';
+import { Server, Activity, Shield, Lock, ChevronRight, Maximize2 } from 'lucide-react';
 
 interface TenantActivityItem {
   id: string;
@@ -38,6 +38,7 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({ onlyRacks = fa
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [selectedRack, setSelectedRack] = useState<Rack | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
+  const [isRacksTotalView, setIsRacksTotalView] = useState<boolean>(false);
 
   const fetchTopology = useCallback(async () => {
     try {
@@ -158,6 +159,19 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({ onlyRacks = fa
           message={error.message || 'Unable to retrieve tenant topology'}
           detail={error.detail}
         />
+      ) : isRacksTotalView ? (
+        <VisualManagementView
+          topology={topology}
+          selectedRackId={selectedRackId}
+          selectedSlot={selectedSlot}
+          onSelectSlot={handleSelectSlot}
+          isTenant={true}
+          tenantId={tenantId}
+          nodeStatuses={nodeStatuses}
+          escalationSlotIds={escalationSlotIds}
+          telemetry={telemetry}
+          isStale={wsStatus === 'stale'}
+        />
       ) : onlyRacks ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Rail (3 cols): Rack list */}
@@ -252,6 +266,18 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({ onlyRacks = fa
             <Card
               title="Live 3D Data Hall"
               subtitle="Your rented bay capacity shown beside shielded facility bays"
+              actions={
+                <button
+                  type="button"
+                  onClick={() => setIsRacksTotalView(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-primary text-white text-11 font-medium hover:bg-primary-hover transition-colors shadow-xs"
+                  title="Expand to Full Page Total View with Side Metrics"
+                  data-testid="expand-tenant-racks-total-view-btn"
+                >
+                  <Maximize2 size={13} strokeWidth={1.5} />
+                  <span>Total View</span>
+                </button>
+              }
             >
               <RackHallCanvas
                 racks={topology ? topology.racks : []}
@@ -264,6 +290,7 @@ export const TenantDashboard: React.FC<TenantDashboardProps> = ({ onlyRacks = fa
                 escalationSlotIds={escalationSlotIds}
                 telemetryByNodeMetric={telemetry}
                 isStale={wsStatus === 'stale'}
+                onToggleTotalView={() => setIsRacksTotalView(true)}
               />
             </Card>
           </main>

@@ -12,7 +12,7 @@ import { VisualManagementView } from '../hall/VisualManagementView';
 import { RackSummaryCard } from './RackSummaryCard';
 import { SlotDetailPanel } from '../topology/SlotDetailPanel';
 import { IsolationSplitView } from './IsolationSplitView';
-import { Server, Activity, Shield, Filter, ChevronRight } from 'lucide-react';
+import { Server, Activity, Shield, Filter, ChevronRight, Maximize2 } from 'lucide-react';
 
 interface ActivityItem {
   id: string;
@@ -43,6 +43,7 @@ export const DataCenterDashboard: React.FC<DataCenterDashboardProps> = ({ onlyRa
 
   // Isolation proof modal state
   const [isIsolationModalOpen, setIsIsolationModalOpen] = useState<boolean>(false);
+  const [isRacksTotalView, setIsRacksTotalView] = useState<boolean>(false);
 
   const fetchTopology = useCallback(async () => {
     try {
@@ -164,6 +165,18 @@ export const DataCenterDashboard: React.FC<DataCenterDashboardProps> = ({ onlyRa
           message={error.message || 'Unable to load facility topology'}
           detail={error.detail}
         />
+      ) : isRacksTotalView ? (
+        <VisualManagementView
+          topology={topology}
+          selectedRackId={selectedRackId}
+          selectedSlot={selectedSlot}
+          onSelectSlot={handleSelectSlot}
+          isTenant={false}
+          nodeStatuses={nodeStatuses}
+          escalationSlotIds={escalationSlotIds}
+          telemetry={telemetry}
+          isStale={wsStatus === 'stale'}
+        />
       ) : onlyRacks ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Rail (3 cols): Keyboard-navigable Rack list */}
@@ -261,6 +274,18 @@ export const DataCenterDashboard: React.FC<DataCenterDashboardProps> = ({ onlyRa
             <Card
               title="Live 3D Data Hall"
               subtitle="Real-time physical spatial hall view with data-driven WebGL rendering"
+              actions={
+                <button
+                  type="button"
+                  onClick={() => setIsRacksTotalView(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-primary text-white text-11 font-medium hover:bg-primary-hover transition-colors shadow-xs"
+                  title="Expand to Full Page Total View with Side Metrics"
+                  data-testid="expand-racks-total-view-btn"
+                >
+                  <Maximize2 size={13} strokeWidth={1.5} />
+                  <span>Total View</span>
+                </button>
+              }
             >
               <RackHallCanvas
                 racks={filteredRacks}
@@ -272,6 +297,7 @@ export const DataCenterDashboard: React.FC<DataCenterDashboardProps> = ({ onlyRa
                 escalationSlotIds={escalationSlotIds}
                 telemetryByNodeMetric={telemetry}
                 isStale={wsStatus === 'stale'}
+                onToggleTotalView={() => setIsRacksTotalView(true)}
               />
             </Card>
           </main>

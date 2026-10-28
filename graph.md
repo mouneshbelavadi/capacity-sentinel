@@ -15,8 +15,9 @@ graph TD
         F_AUTH["app/authStore.ts (Zustand Auth Store)"]
         F_SHELL["app/Shell.tsx (56px Bar, Live Indicator, Changepoint Toast with Ref Cleanup, Nav, Content)"]
         F_LOGIN["features/auth/LoginPage.tsx"]
-        F_HALL["features/hall/RackHallCanvas.tsx (3D WebGL Hall, Demand Frameloop, Camera Presets, Overhead Fiber Raceway, Perforated Tiles)"]
-        F_VMV["features/hall/VisualManagementView.tsx (Industrial DCIM Command Center Layout, TwinThings/IOC Inspired)"]
+        F_HALL["features/hall/RackHallCanvas.tsx (3D WebGL Data Center Hall, 29 Racks, Walking Corridors, Demand Frameloop, Camera Presets, Overhead Infrastructure, CRAC Units)"]
+        F_AMBIENT["features/hall/AmbientRack3D.tsx (Enterprise Ambient Server Rack, Plinth, Canopy, Rails, Blade Hardware, Unmonitored Inventory)"]
+        F_VMV["features/hall/VisualManagementView.tsx (Industrial DCIM Command Center Layout, TwinThings/IOC Inspired, Full-Page Total View with Floating Side Metrics Dock)"]
         F_TIMELINE["features/hall/ForecastTimelineBar.tsx (Interactive Forecast Scrubber, Live vs ETS Horizon, Auto-Play)"]
         F_OVERVIEW["features/hall/OverviewPanel.tsx (Racks, Nodes, Sensors, Tenants)"]
         F_DONUT["features/hall/ClassificationDonut.tsx (Sensor Distribution Ring Chart)"]
@@ -68,6 +69,7 @@ graph TD
         F_VMV --> F_TRENDS
         F_VMV --> F_TABS
         F_HALL --> F_RACK3D
+        F_HALL --> F_AMBIENT
         F_HALL --> F_RACK_GRID
         F_RACK3D --> F_SLOT3D
         F_SLOT3D --> F_HATCH

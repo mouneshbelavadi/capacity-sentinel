@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Data Center Server Rack - Three.js</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #111;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Fixed: Importing the actual Three.js library from cdnjs -->
+    <script src="https://cloudflare.com"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Ambient and directional lighting
+        scene.add(new THREE.AmbientLight(0x404040));
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 10, 7);
+        scene.add(light);
+
+        // Create Server Rack Frame
+        const rackGeo = new THREE.BoxGeometry(2, 4.5, 1.2);
+        const rackMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.5 });
+        const rack = new THREE.Mesh(rackGeo, rackMat);
+        scene.add(rack);
+
+        // Add individual server blades with LED lights
+        const bladeGeo = new THREE.BoxGeometry(1.8, 0.15, 1.1);
+        const bladeMat = new THREE.MeshStandardMaterial({ color: 0x444444 });
+        const ledMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+
+        for (let i = -1.9; i < 1.9; i += 0.25) {
+            const blade = new THREE.Mesh(bladeGeo, bladeMat);
+            blade.position.set(0, i, 0);
+            rack.add(blade);
+
+            const ledGeo = new THREE.BoxGeometry(0.08, 0.08, 0.02);
+            const led = new THREE.Mesh(ledGeo, ledMat);
+            // Adjusted Z-position to 0.56เพื่อให้ LED sits right on the front face of the blade
+            led.position.set(0.7, i, 0.56);
+            rack.add(led);
+        }
+
+        camera.position.z = 6;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            rack.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+
+</html>
