@@ -1,17 +1,18 @@
 # RackSense — Context
-_Last updated: 2026-10-28T19:53:00Z by master-integration_
+_Last updated: 2026-10-29T03:20:00Z by master-audit_
 
 ## Contract
 - CONTRACT_VERSION in shared/api-contract.md: 1.0.0
-- Backend implements: 1.0.0 (Phases A–F complete)
-- Frontend implements: 1.0.0 (Phases 1–6 complete)
+- Backend implements: 1.0.0 (Phases A–F complete + Simulations & RFID Auth)
+- Frontend implements: 1.0.0 (Phases 1–6 complete + Visual Management + Simulations & AI Chat)
 - Drift detected: none
 - Contract unchanged.
 
 ## Current state
-Full-stack implementation is complete and verified:
-1. **Backend (Phases A–F)**: Fully implemented in Python 3.11+, FastAPI, SQLite WAL mode, and Paho-MQTT subscriber. Implements Contract §15 packet validation, single-choke `apply_scope` tenant isolation, Theil-Sen bootstrap forecast + ETS damped trend, dual change-point detection (CUSUM+PELT), physical RFID approval state machine with 60s single-use nonces and HMAC-SHA256 constant-time verification, OWASP LLM06 grounded advisory AI layer, authenticated WebSocket `/ws?token=<jwt>` with 500ms batching and backpressure queue eviction, sliding-window rate limiting, and startup self-check verifying the SHA-256 hash-chained audit ledger from genesis. 55 backend tests passing.
-2. **Frontend (Phases 1–6)**: Fully implemented in React 18, TypeScript (strict, no any), Vite, and Tailwind CSS with custom design tokens. Implements Contract mismatch banner, single API client, single WebSocket hook with 500ms batch buffer, Data Center and Tenant dashboards, 404 stealth view, interactive 3D WebGL rack hall (Three.js with demand frameloop and 2D elevation grid fallback), capacity forecast cone chart (P10/P50/P90 band), vibration baseline chart, CPU-derived power chart, inferred tenant attribution chart, AI advisory panel with evidence modal, proposal discussion card with field-level diffing and countdown timer, physical TFT mirror box, and cryptographic audit log view with interactive tamper detection toggle. 88 frontend tests passing with zero TypeScript errors.
+Full-stack implementation is complete, integrated, and verified:
+1. **Backend (Phases A–F + Simulations & RFID Auth)**: Fully implemented in Python 3.11+, FastAPI, SQLite WAL mode, and Paho-MQTT subscriber. Implements Contract §15 packet validation, single-choke `apply_scope` tenant isolation, Theil-Sen bootstrap forecast + ETS damped trend, dual change-point detection (CUSUM+PELT), physical RFID approval state machine with 60s single-use nonces and HMAC-SHA256 constant-time verification, OWASP LLM06 grounded advisory AI layer, authenticated WebSocket `/ws?token=<jwt>` with 500ms batching and backpressure queue eviction, sliding-window rate limiting, startup self-check verifying the SHA-256 hash-chained audit ledger from genesis, RFID badge login endpoint (`POST /api/auth/rfid-login`), multi-scenario stress test engine (`POST /api/simulations/run`), and proposal alternative options. 61 backend tests passing (100% green).
+2. **Frontend (Phases 1–6 + Visual Management + Simulations & AI Chat)**: Fully implemented in React 18, TypeScript (strict, no any), Vite, and Tailwind CSS with custom design tokens. Implements Contract mismatch banner, single API client, single WebSocket hook with 500ms batch buffer, Data Center and Tenant dashboards, 404 stealth view, interactive 3D WebGL rack hall (Three.js with demand frameloop, 29 enterprise server racks across 4 rows, ambient racks, walking corridors, and 2D elevation grid fallback), capacity forecast cone chart (P10/P50/P90 band), vibration baseline chart, CPU-derived power chart, inferred tenant attribution chart, AI advisory panel with evidence modal, alternative mitigation selector (Options 1–4), and pre-approval discussion chat, proposal card with field-level diffing and countdown timer, physical TFT mirror box, full visual management command center (Classification Donut, Statistics Bars, Consumption Gauges, Status Distribution, Trend Sparkline, Category Tabs), dedicated Simulations view (`/datacenter/simulations`), and cryptographic audit log view with interactive tamper detection toggle. 113 frontend tests passing with zero TypeScript errors.
+3. **Comprehensive Audit Report**: Generated `AUDIT_REPORT.md` documenting all subsystem architectures, invariant compliance, dataset provenance mappings, benchmark evaluation metrics (16.6-day average lead time, 87.5% false-alarm filtering, 100% change-point F1), and operator runbook.
 
 ## Subsystem status
 | Subsystem | State | Where it lives | Notes |
@@ -30,7 +31,7 @@ Full-stack implementation is complete and verified:
 | Realtime & Broadcaster | Implemented | `backend/services/broadcaster.py`, `backend/api/ws.py` | 500ms per-node batching, prioritized queue backpressure, double-check scope |
 | Hardening & Limiting | Implemented | `backend/core/ratelimit.py`, `backend/api/meta.py` | Sliding window rate limiter, startup self-check fails loud on broken audit |
 | Audit | Implemented | `backend/services/audit.py`, `backend/repos/audit.py` | Append-only SHA-256 hash chain, zero UPDATE/DELETE, GET /api/audit/verify |
-| Frontend | Implemented | `frontend/` | Complete 6 phases: 3D hall, forecast cones, approval loop, audit tamper UI |
+| Frontend | Implemented | `frontend/` | Complete 6 phases: 3D hall, forecast cones, approval loop, audit tamper UI, visual management command center |
 | Firmware | Implemented | `hardware/` | Shipped in kit |
 
 ## Decisions made (append-only — never delete a row)
@@ -79,9 +80,28 @@ Full-stack implementation is complete and verified:
 | 2026-10-28 | 12-month synthetic facility backtest (tools/synthetic/backtest.py) | Evaluates lead times (16.6d mean), false-alarm rate (12.5%), interval coverage (63.4%), and change-point F1 (1.000) against ground truth in files (1) | `03-master-integration.md` Part 4 |
 | 2026-10-28 | Transparent scope limit disclosure in ANALYSIS.md and DEMO.md | Week-scale claim declared as design intent and synthetic validation; bench physics acknowledged as minute-scale | `03-master-integration.md` Part 3 |
 | 2026-10-28 | One-click auto-launcher (run_project.py / run_project.bat) placed at root, shared/, and kit directories | Enables one-click launch with automated port cleaning, db initialization, hot-reloading, and browser opening | User request |
+| 2026-10-28 | Decouple `rows` state from `verifyChain` via `useRef` | Eliminates infinite reload loop on Audit Log page, ensuring single mount fetch | Bug fix #1 |
+| 2026-10-28 | Dedicated `/datacenter/racks` & `/tenant/racks` sub-routes | Provides focused 3D Hall and rack summary inspection, hiding surrounding overview banners | Bug fix #2 |
+| 2026-10-28 | Module-level `subscribeChangepoint` and ref-managed toast timer | Stabilizes `onChangepoint` reference across renders and guarantees proper timer cleanup on unmount | Bug fix #3 |
+| 2026-10-28 | Explicitly disable no-op controls with tooltips | Honors honest UI principle; unimplemented global search and canvas metric filters are marked inactive | Bug fix #4 |
+| 2026-10-28 | Visual management command center layout | Surrounds 3D rack hall with 6 real-time stat panels & bottom category tabs inspired by industrial DCIM tools | `phase-5-hall.md` §1 |
+| 2026-10-28 | Light-theme isometric three-quarter 3D hall with floor footprint markers | Replaces dark/glow reference with GCP/Power BI console aesthetic and architectural rack markers | `phase-5-hall.md` §2 |
+| 2026-10-28 | Category and status dimming to `--surface-sunken` | Dims non-relevant slots in 3D scene while keeping them visible for orientation | `phase-5-hall.md` §9 |
+| 2026-10-28 | Demand frameloop with direct ref mutation | Guarantees ≥50 fps on integrated GPUs with zero per-frame React commits | `phase-5-hall.md` §12 |
+| 2026-10-28 | Forecast timeline scrubber with ETS additive projection | Scrub forward through time (+1h, +6h, +12h, +24h, +48h) to see predicted limit breaches in 3D without inventing fake data | 3D visual management redesign |
+| 2026-10-28 | Camera presets toolbar with declarative CameraController | Instant one-click switches between Isometric, Frontal, Top-Down, with zoom and reset controls | 3D visual management redesign |
+| 2026-10-28 | High-visibility 3D floating callout card on bay selection | Anchored directly above selected server blade in 3D space, showing live metrics, tenant info, and predicted status | IOC/Smart Campus reference |
+| 2026-10-28 | Enterprise rack detailing: blanking panels, EIA-310 rails, hot-swap drive bays, status light bars & overhead fiber raceway | Elevates 3D visualization from basic plain boxes to authentic high-density enterprise data center digital twin without external assets | User feedback: server rack too plain |
+| 2026-10-28 | Fully populated server blade racks with standby units | Populates all 42U rack bays with realistic server blades (handles, caddies, LEDs) replacing blank panels, creating a dense authentic server rack visual | User request: each rack create servers only |
+| 2026-10-29 | 29-rack data center room layout with pathways, aisle containment, and selective highlighting | Renders 29 server racks across 4 rows with 3.3m walking corridors, floor demarcation, overhead fiber raceways, and perimeter CRAC units; selectively highlights only our 2 main telemetry racks with live status and predictive billboards | User request: at least 25 server racks with pathways, highlight only 2 main racks |
+| 2026-10-29 | Full-page Total View expansion mode for 3D interface with floating side metrics | Adds "Total View" expansion button on 3D card header and canvas toolbar, expanding 3D canvas to 100vw/100vh with floating left/right metrics overlay, toggleable panel visibility, timeline scrubber, smooth zoom/orbit controls, URL state sync (?view=total), and Escape key exit | User request: open whole 3D interface on full page with metrics on left/right and clean zoom |
+| 2026-10-29 | Physical RFID badge authentication & credential alias bridge | Added POST /api/auth/rfid-login validating physical card UIDs against DB cards, creating JWT tokens and logging RFID_LOGIN audit events; bridged friendly demo usernames for 1-click evaluation | User request |
+| 2026-10-29 | Multi-option AI suggestions & interactive advisory chat expansion | Added structured mitigation alternatives (Options 1–4) to AI proposals, enabled pre-approval discussion chat without prior proposal anchor, and added 1-click alternative switching | User request |
+| 2026-10-29 | Multi-Scenario Facility Simulation Engine | Built backend /api/simulations and frontend SimulationsView: 5 realistic operational stress tests (thermal breach, fan bearing degradation, air stagnation, compute surge, baseline reset) injecting synthetic telemetry and auto-generating AI recommendations with chat | User request |
+| 2026-10-29 | Comprehensive System Audit & Verification Report (AUDIT_REPORT.md) | Created clean formal system audit report documenting all implemented layers, hardware, analytics, security models, datasets, and 100% test proofs | User request |
 
 ## Open questions for the human
-None. Master Integration and Demo Readiness (Phases A–F, Phases 1–6, Parts 1–5) are complete and verified.
+None. Full-stack integration, simulation engine, RFID authentication, multi-option AI advisory chat, and live benchmark dataset integration are complete and verified across 113 frontend vitest tests and 61 backend pytest tests.
 
 ## Next actions
 1. Run `npm run demo-check` immediately before live presentation to verify green status.

@@ -101,7 +101,7 @@ export const RackSummaryCard: React.FC<RackSummaryCardProps> = ({
     power_w: 'Rack Power',
   };
 
-  const metricTitle = metricLabels[worst_margin.metric] || worst_margin.metric;
+  const metricTitle = worst_margin?.metric ? (metricLabels[worst_margin.metric] || worst_margin.metric) : 'Worst Margin';
 
   return (
     <Card
@@ -135,7 +135,7 @@ export const RackSummaryCard: React.FC<RackSummaryCardProps> = ({
             <div className="mt-1 flex items-center gap-1.5">
               <Server size={14} strokeWidth={1.5} className="text-ink-muted" />
               <span className="text-14 font-semibold font-mono text-primary">
-                {worst_margin.node_id}
+                {worst_margin?.node_id ?? 'None'}
               </span>
             </div>
             <span className="text-11 text-ink-muted mt-1 block">Critical path sensor</span>
@@ -143,41 +143,47 @@ export const RackSummaryCard: React.FC<RackSummaryCardProps> = ({
         </div>
 
         {/* Worst Margin Callout Box */}
-        <div className="p-3.5 rounded-lg border border-border bg-surface flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <Gauge size={14} strokeWidth={1.5} className="text-ink-2" />
-              <span className="text-12 font-semibold text-ink">{metricTitle}</span>
-            </div>
-            <span className="text-11 font-mono text-ink-muted">
-              metric: {worst_margin.metric}
-            </span>
-          </div>
-
-          {/* Current Reading */}
-          <div className="flex items-baseline justify-between pt-1 border-t border-border/60">
-            <span className="text-12 text-ink-2">Current Reading:</span>
-            <Value
-              value={worst_margin.value.value}
-              unit={worst_margin.value.unit}
-              meta={worst_margin.value.meta}
-              size="lg"
-            />
-          </div>
-
-          {/* Limit & Source */}
-          <div className="pt-2 border-t border-border/60 text-11 space-y-1">
-            <div className="flex items-baseline justify-between">
-              <span className="text-ink-2 font-medium">Limit:</span>
-              <span className="font-mono tabular-nums font-semibold text-ink">
-                {worst_margin.limit} {worst_margin.value.unit}
+        {worst_margin && (
+          <div className="p-3.5 rounded-lg border border-border bg-surface flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Gauge size={14} strokeWidth={1.5} className="text-ink-2" />
+                <span className="text-12 font-semibold text-ink">{metricTitle}</span>
+              </div>
+              <span className="text-11 font-mono text-ink-muted">
+                metric: {worst_margin.metric}
               </span>
             </div>
-            <div className="text-11 text-ink-muted">
-              Source: <span className="text-ink-2 font-medium">{worst_margin.limit_source}</span>
+
+            {/* Current Reading */}
+            {worst_margin.value && (
+              <div className="flex items-baseline justify-between pt-1 border-t border-border/60">
+                <span className="text-12 text-ink-2">Current Reading:</span>
+                <Value
+                  value={worst_margin.value.value}
+                  unit={worst_margin.value.unit}
+                  meta={worst_margin.value.meta}
+                  size="lg"
+                />
+              </div>
+            )}
+
+            {/* Limit & Source */}
+            <div className="pt-2 border-t border-border/60 text-11 space-y-1">
+              <div className="flex items-baseline justify-between">
+                <span className="text-ink-2 font-medium">Limit:</span>
+                <span className="font-mono tabular-nums font-semibold text-ink">
+                  {worst_margin.limit} {worst_margin.value?.unit ?? ''}
+                </span>
+              </div>
+              {worst_margin.limit_source && (
+                <div className="text-11 text-ink-muted">
+                  Source: <span className="text-ink-2 font-medium">{worst_margin.limit_source}</span>
+                </div>
+              )}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </Card>
   );

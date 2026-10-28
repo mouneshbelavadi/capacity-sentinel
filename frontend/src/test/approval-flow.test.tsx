@@ -464,5 +464,46 @@ describe('Phase 6 Approval, AI Advisory, and Audit Log Tests', () => {
       ).toBeInTheDocument();
       expect(screen.getByText(/Hash mismatch detected/i)).toBeInTheDocument();
     });
+
+    it('fetches /api/audit and /api/audit/verify exactly once on mount, and again only on explicit user action', async () => {
+      const getSpy = vi.spyOn(apiClient, 'get').mockImplementation(async (url: string) => {
+        if (url === '/api/audit') {
+          return { rows: sampleAuditRows, total: 2 };
+        }
+        if (url.startsWith('/api/audit/verify')) {
+          return {
+            ok: true,
+            rows_checked: 1842,
+            head_hash: '9f2c4a1b8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c10',
+          };
+        }
+        throw new Error(`Unexpected url ${url}`);
+      });
+
+      render(<AuditView />);
+
+      expect(await screen.findByText('Audit Chain Cryptographically Verified')).toBeInTheDocument();
+      expect(screen.getByText('#1842')).toBeInTheDocument();
+
+      // Verify that /api/audit and /api/audit/verify were each called exactly once on mount
+      const auditCalls = getSpy.mock.calls.filter(([url]) => url === '/api/audit');
+      const verifyCalls = getSpy.mock.calls.filter(([url]) => url.startsWith('/api/audit/verify'));
+
+      expect(auditCalls.length).toBe(1);
+      expect(verifyCalls.length).toBe(1);
+
+      // Explicit user action: click "Verify chain" button
+      const verifyButton = screen.getByRole('button', { name: /Verify audit chain hashes/i });
+      fireEvent.click(verifyButton);
+
+      await waitFor(() => {
+        const verifyCallsAfterClick = getSpy.mock.calls.filter(([url]) => url.startsWith('/api/audit/verify'));
+        expect(verifyCallsAfterClick.length).toBe(2);
+      });
+
+      // /api/audit must NOT have been called again (still exactly 1)
+      const auditCallsAfterClick = getSpy.mock.calls.filter(([url]) => url === '/api/audit');
+      expect(auditCallsAfterClick.length).toBe(1);
+    });
   });
 });

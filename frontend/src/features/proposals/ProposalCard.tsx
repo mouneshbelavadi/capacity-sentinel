@@ -477,6 +477,31 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
           </div>
         )}
 
+        {/* Suggested Action Alternatives */}
+        {currentProposal.alternative_options && currentProposal.alternative_options.length > 0 && (
+          <div className="space-y-1.5 p-2.5 rounded bg-surface border border-border">
+            <span className="text-11 font-semibold text-ink-muted uppercase tracking-wider block">
+              Suggested Alternatives (Click to request revision):
+            </span>
+            <div className="flex flex-wrap gap-1.5">
+              {currentProposal.alternative_options.map((opt, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  disabled={isChatSubmitting || ['AUTHORIZED', 'REJECTED', 'EXPIRED'].includes(currentProposal.status)}
+                  onClick={() => {
+                    setInputMessage(`Let's switch mitigation action to: ${opt.action}. ${opt.rationale}`);
+                  }}
+                  className="px-2 py-1 rounded bg-surface-sunken hover:bg-surface-hover border border-border text-11 text-ink font-medium transition-colors shadow-2xs text-left"
+                >
+                  <span className="text-primary font-bold">{opt.label}:</span>{' '}
+                  <span className="text-ink-2">{opt.action}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Chat Query Input Form */}
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input

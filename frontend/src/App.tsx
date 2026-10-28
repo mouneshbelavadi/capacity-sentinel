@@ -10,6 +10,7 @@ import { AccessControl } from './features/access/AccessControl';
 import { ForecastView } from './features/forecast/ForecastView';
 import { ApprovalsView } from './features/proposals/ApprovalsView';
 import { AuditView } from './features/audit/AuditView';
+import { SimulationsView } from './features/simulations/SimulationsView';
 import { ContractMismatchBanner } from './design/ContractMismatchBanner';
 
 export const App: React.FC = () => {
@@ -73,11 +74,15 @@ export const App: React.FC = () => {
       // Convenience redirect only, NOT a security control.
       // Tenant isolation is strictly enforced server-side via apply_scope();
       // foreign resources return 404 regardless of frontend navigation.
-      if (currentPath.startsWith('/datacenter') || currentPath === '/' || currentPath === '/login') {
+      if (currentPath.startsWith('/datacenter')) {
+        navigateTo(currentPath.includes('/racks') ? '/tenant/racks' : '/tenant');
+      } else if (currentPath === '/' || currentPath === '/login') {
         navigateTo('/tenant');
       }
     } else if (user.role === 'OPERATOR') {
-      if (currentPath === '/tenant' || currentPath === '/datacenter/access' || currentPath === '/' || currentPath === '/login') {
+      if (currentPath.startsWith('/tenant') || currentPath === '/datacenter/access') {
+        navigateTo(currentPath.includes('/racks') ? '/datacenter/racks' : '/datacenter');
+      } else if (currentPath === '/' || currentPath === '/login') {
         navigateTo('/datacenter');
       }
     } else if (user.role === 'SUPER_USER') {
@@ -109,6 +114,8 @@ export const App: React.FC = () => {
     activeSection = 'access';
   } else if (currentPath.includes('/racks')) {
     activeSection = 'racks';
+  } else if (currentPath.includes('/simulations')) {
+    activeSection = 'simulations';
   } else if (currentPath.includes('/forecasts')) {
     activeSection = 'forecasts';
   } else if (currentPath.includes('/approvals')) {
@@ -120,6 +127,10 @@ export const App: React.FC = () => {
   const handleNavSelect = (section: NavSection) => {
     if (section === 'access') {
       navigateTo('/datacenter/access');
+    } else if (section === 'racks') {
+      navigateTo(user.role === 'TENANT' ? '/tenant/racks' : '/datacenter/racks');
+    } else if (section === 'simulations') {
+      navigateTo(user.role === 'TENANT' ? '/tenant/simulations' : '/datacenter/simulations');
     } else if (section === 'forecasts') {
       navigateTo(user.role === 'TENANT' ? '/tenant/forecasts' : '/datacenter/forecasts');
     } else if (section === 'approvals') {
@@ -134,6 +145,20 @@ export const App: React.FC = () => {
   };
 
   // Render view corresponding to route and role
+  if (currentPath.includes('/racks')) {
+    const isTenant = user.role === 'TENANT' || currentPath.startsWith('/tenant');
+    return (
+      <Shell
+        currentSection="racks"
+        onNavigate={handleNavSelect}
+        pageTitle={isTenant ? "Assigned Racks" : "Data Center Racks"}
+        breadcrumb={['Site 01', 'Racks']}
+      >
+        {isTenant ? <TenantDashboard onlyRacks /> : <DataCenterDashboard onlyRacks />}
+      </Shell>
+    );
+  }
+
   if (currentPath === '/datacenter/access' && user.role === 'SUPER_USER') {
     return (
       <Shell
@@ -143,6 +168,22 @@ export const App: React.FC = () => {
         breadcrumb={['Data Center', 'Access Control']}
       >
         <AccessControl />
+      </Shell>
+    );
+  }
+
+  if (currentPath.includes('/simulations')) {
+    return (
+      <Shell
+        currentSection="simulations"
+        onNavigate={handleNavSelect}
+        pageTitle="Facility Multi-Scenario Simulations"
+        breadcrumb={['Site 01', 'Operational Simulations']}
+      >
+        <SimulationsView
+          onNavigateToHall={() => handleNavSelect('racks')}
+          onNavigateToApprovals={() => handleNavSelect('approvals')}
+        />
       </Shell>
     );
   }

@@ -30,13 +30,13 @@ users:
     display_name: "Beta Compute Lead"
 
 cards:
-  - uid: "04:A1:B2:C3:D4"
+  - uid: "04A1B2C3D4"
     user_id: "u-op1"
     active: 1
     max_risk_tier: 2
     issued_at: "2026-10-28T00:00:00Z"
 
-  - uid: "04:E5:F6:17:28"
+  - uid: "04E5F61728"
     user_id: "u-super1"
     active: 1
     max_risk_tier: 3
