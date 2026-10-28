@@ -31,7 +31,9 @@ class ProposeRequest(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    proposal_id: str = Field(..., description="Proposal ID being discussed")
+    proposal_id: str | None = Field(None, description="Proposal ID being discussed (optional if node_id provided)")
+    node_id: str | None = Field(None, description="Target node ID for advisory discussion")
+    rack_id: str | None = Field(None, description="Target rack ID for advisory discussion")
     message: str = Field(..., description="Operator message or question")
 
 
@@ -98,10 +100,20 @@ async def handle_chat(
     Can revise proposal fields while strictly keeping status DISCUSSING.
     Discussion can NEVER approve or authorize.
     """
+    prop_id = req.proposal_id
+    if not prop_id:
+        target_node = req.node_id or "r1-n1"
+        prop = await ai_propose(
+            db=db,
+            node_id=target_node,
+            rack_id=req.rack_id,
+            caller_scope=scope,
+        )
+        prop_id = prop["proposal_id"]
+
     return await ai_chat(
         db=db,
-        proposal_id=req.proposal_id,
+        proposal_id=prop_id,
         message=req.message,
         caller_scope=scope,
     )
-

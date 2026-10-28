@@ -1,0 +1,127 @@
+/* RackSense — Design System Tokens */
+/* Strict light-theme console tokens. One theme only. */
+
+:root {
+  /* Surfaces, ink, lines */
+  --canvas: #F5F6F8;
+  --surface: #FFFFFF;
+  --surface-sunken: #FAFBFC;
+  --surface-hover: #F1F3F5;
+  --border: #DADCE0;
+  --border-strong: #C4C7CC;
+  --ink: #202124;
+  --ink-2: #5F6368;
+  --ink-muted: #80868B;
+
+  /* Accent — interactive, selected, focus ring, primary action only */
+  --primary: #155FA6;
+  --primary-hover: #114E8A;
+  --primary-weak: #E8F0F9;
+
+  /* Status — reserved, never reused as a series colour */
+  --ok: #1E8E3E;
+  --ok-weak: #E6F4EA;
+  --warn: #C77700;
+  --warn-weak: #FEF7E0;
+  --crit: #C5221F;
+  --crit-weak: #FCE8E6;
+  --offline: #80868B;
+
+  /* Categorical series — for charts only (fixed order) */
+  --cat-1: #1F5FA6;
+  --cat-2: #B5457F;
+  --cat-3: #0E7C7B;
+  --cat-4: #6B4FA0;
+  --cat-5: #44576B;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgba(60, 64, 67, 0.08);
+  --shadow-panel: 0 1px 3px rgba(60, 64, 67, 0.12);
+
+  /* Radii */
+  --radius-card: 8px;
+  --radius-chip: 4px;
+}
+
+/* Global resets & typography */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular figures for all dynamic numeric displays */
+.tabular-numbers,
+.num,
+[data-tabular="true"] {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+/* Accessibility focus ring */
+:focus-visible {
+  outline: 2px solid var(--primary) !important;
+  outline-offset: 2px !important;
+}
+
+/* 45° hatch pattern for estimated metrics per §2 & §9 */
+.hatch-estimated {
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 4px,
+    rgba(21, 95, 166, 0.12) 4px,
+    rgba(21, 95, 166, 0.12) 8px
+  );
+}
+
+/* 45° neutral hatch pattern for foreign/unowned slots per phase-2-topology.md §2 */
+.hatch-foreign {
+  background: repeating-linear-gradient(
+    45deg,
+    var(--surface-sunken),
+    var(--surface-sunken) 6px,
+    rgba(128, 134, 139, 0.15) 6px,
+    rgba(128, 134, 139, 0.15) 12px
+  );
+}
+
+/* Single 600ms escalation pulse sweep per phase-3-realtime.md §7 */
+@keyframes escalation-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--crit);
+    border-color: var(--crit);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(197, 34, 31, 0.35);
+    border-color: var(--crit);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.pulse-escalation {
+  animation: escalation-pulse 600ms ease-out 1 forwards;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

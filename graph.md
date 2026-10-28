@@ -1,184 +1,94 @@
-# System Graph
+# RackSense — System Graph
 
-Visual map of the current RackSense implementation state.
-Generated on 2026-10-28 (Post Phase F: Realtime Telemetry, Timing & Operational Hardening).
+_Generated: 2026-10-29T02:45:00Z (Master Integration, Visual Management & Full-Stack Complete)_
 
-## 1. Module Graph
+### 1. Full-Stack Module Graph
 
 ```mermaid
 graph TD
-    classDef planned fill:#f9f9f9,stroke:#999,stroke-dasharray: 5 5;
     classDef done fill:#d4edda,stroke:#28a745,stroke-width:2px;
 
-    subgraph Hardware [Hardware Firmware]
-        node_env["hardware/node_env_esp32 (ESP32)"]:::done
-        node_vib["hardware/node_vib_esp32s3 (ESP32-S3)"]:::done
-        auth_console["hardware/auth_console_esp32s3 (ESP32-S3)"]:::done
+    subgraph Hardware["hardware/ (Firmware Shipped in Kit)"]
+        H_ENV["hardware/node_env_esp32 (ESP32 Dev Module)"]:::done
+        H_VIB["hardware/node_vib_esp32s3 (ESP32-S3 #2)"]:::done
+        H_AUTH["hardware/auth_console_esp32s3 (ESP32-S3 #1)"]:::done
     end
 
-    subgraph Backend [Backend Service]
-        ingest["backend/ingest (validator, normaliser, subscriber)"]:::done
-        db["backend/db (SQLite WAL, connection)"]:::done
-        repos["backend/repos (nodes, telemetry, topology, users, audit, analysis, baselines, proposals, readers)"]:::done
-        scope["backend/repos/scope.py (apply_scope single choke point)"]:::done
-        services_audit["backend/services/audit.py (hash chain, verification)"]:::done
-        services_analysis["backend/services (forecast, changepoint, attribution, power, scheduler)"]:::done
-        approval["backend/services/approval.py (RFID nonce, HMAC, atomic consume)"]:::done
-        ai["backend/services/ai (RAG, client, summarizer, explainer, proposer, chat)"]:::done
-        broadcaster["backend/services/broadcaster.py (RealtimeBroadcaster, 500ms batching, backpressure)"]:::done
-        ratelimit["backend/core/ratelimit.py (sliding window limiter)"]:::done
-        api["backend/api (auth, meta, ws, topology, telemetry, racks, audit, analysis, proposals, reader, ai)"]:::done
+    subgraph Backend["backend/ (Phases A–F Complete)"]
+        B_INGEST["backend/ingest (validator, normaliser, subscriber)"]:::done
+        B_DB["backend/db (SQLite WAL, connection)"]:::done
+        B_REPOS["backend/repos (nodes, telemetry, topology, users, audit, analysis, baselines, proposals, readers)"]:::done
+        B_SCOPE["backend/repos/scope.py (apply_scope single choke point)"]:::done
+        B_AUDIT["backend/services/audit.py (SHA-256 hash chain, verify)"]:::done
+        B_ANALYSIS["backend/services (forecast, changepoint, attribution, power, scheduler)"]:::done
+        B_APPROVAL["backend/services/approval.py (RFID nonce, HMAC, atomic consume)"]:::done
+        B_AI["backend/services/ai (RAG, client, summarizer, explainer, proposer, chat)"]:::done
+        B_BROADCAST["backend/services/broadcaster.py (RealtimeBroadcaster, 500ms batching, backpressure)"]:::done
+        B_LIMIT["backend/core/ratelimit.py (sliding window limiter)"]:::done
+        B_SIM["backend/api/simulation.py (5 Operational Stress Test Scenarios, Telemetry Injection, Auto-AI)"]:::done
+        B_API["backend/api (auth, rfid-login, meta, ws, topology, telemetry, racks, audit, analysis, proposals, reader, ai, simulations)"]:::done
     end
 
-    subgraph Frontend [Frontend Web App - PLANNED]
-        ui["frontend/src"]:::planned
+    subgraph Frontend["frontend/src (Phases 1–6 Complete + Visual Management)"]
+        F_TOKENS["design/tokens.css (CSS Variables, .hatch-foreign, .pulse-escalation, .hatch-estimated)"]:::done
+        F_PRIMITIVES["design/primitives (Card, Value, StatusBadge, Chip, KpiTile, DataTable, DetailPanel, EmptyState, ErrorState)"]:::done
+        F_CONTRACT["api/contract.ts (Closed Enums & Payloads)"]:::done
+        F_CLIENT["api/client.ts (Fetch Wrapper & Drift Check)"]:::done
+        F_WS["api/ws.ts (Single WebSocket Hook, 500ms Batching Buffer, Stable onChangepoint, Reconnect Backoff, Heartbeat)"]:::done
+        F_AUTH["app/authStore.ts (Zustand Auth Store)"]:::done
+        F_SHELL["app/Shell.tsx (56px Bar, Live Indicator, Changepoint Toast with Ref Cleanup, Nav, Content)"]:::done
+        F_LOGIN["features/auth/LoginPage.tsx"]:::done
+        F_HALL["features/hall/RackHallCanvas.tsx (3D WebGL Data Center Hall, Demand Frameloop, Camera Presets, Overhead Infrastructure, CRAC Units)"]:::done
+        F_AMBIENT["features/hall/AmbientRack3D.tsx (Enterprise Ambient Server Rack, Plinth, Canopy, Rails, Blade Hardware, Unmonitored Inventory)"]:::done
+        F_VMV["features/hall/VisualManagementView.tsx (Industrial DCIM Command Center Layout, TwinThings/IOC Inspired, Full-Page Total View with Floating Side Metrics Dock)"]:::done
+        F_TIMELINE["features/hall/ForecastTimelineBar.tsx (Interactive Forecast Scrubber, Live vs ETS Horizon, Auto-Play)"]:::done
+        F_OVERVIEW["features/hall/OverviewPanel.tsx (Racks, Nodes, Sensors, Tenants)"]:::done
+        F_DONUT["features/hall/ClassificationDonut.tsx (Sensor Distribution Ring Chart)"]:::done
+        F_BARS["features/hall/StatisticsBars.tsx (Rack Capacity, Thermal Margin, Power Margin)"]:::done
+        F_GAUGES["features/hall/ConsumptionGauges.tsx (PUE, IT Power, Total Power, Empty State)"]:::done
+        F_STATUS["features/hall/StatusDistribution.tsx (OK/WARN/CRIT/OFFLINE Stacked Bar & Filter)"]:::done
+        F_TRENDS["features/hall/TrendSparkline.tsx (AreaChart Worst-Margin Sparkline)"]:::done
+        F_TABS["features/hall/CategoryTabs.tsx (Telemetry Category Filter Chips)"]:::done
+        F_RACK3D["features/hall/Rack3D.tsx (Chassis Frame, EIA-310 Rails, Plinth, Canopy, Side Panels, Standby Server Blades, Billboard)"]:::done
+        F_SLOT3D["features/hall/Slot3D.tsx (Brushed Steel Chassis, Pull Handles, Hot-Swap Drive Caddies, Status Light Bar, LEDs, Tooltip)"]:::done
+        F_HATCH["features/hall/hatchTexture.ts (Canvas 45° Repeating Diagonal Texture)"]:::done
+        F_RACK_GRID["features/datacenter/RackGrid.tsx (2D Physical Elevation Fallback, Hatch)"]:::done
+        F_RACK_SUMMARY["features/datacenter/RackSummaryCard.tsx (Worst Margin, Nodes Ratio)"]:::done
+        F_SLOT_DETAIL["features/topology/SlotDetailPanel.tsx (Sparklines, Honest Provenance, AiPanel Mounted)"]:::done
+        F_ISOLATION["features/datacenter/IsolationSplitView.tsx (Dual-Token Live Proof)"]:::done
+        F_DC["features/datacenter/DataCenterDashboard.tsx (Visual Management View, Live 3D Hall, Keyboard Rail, Audits)"]:::done
+        F_TENANT["features/tenant/TenantDashboard.tsx (Visual Management View, Live 3D Hall, Shielded Foreign Slots)"]:::done
+        F_FORECAST["features/forecast/ForecastView.tsx (Capacity & Headroom Analysis Page)"]:::done
+        F_CONE["features/forecast/ForecastConeChart.tsx (Recharts ComposedChart, Stat Tile, Table View)"]:::done
+        F_VIB["features/forecast/VibrationBaselineChart.tsx (x baseline, 2x WARN / 4x CRIT, Table View)"]:::done
+        F_ATTR["features/forecast/TenantAttributionChart.tsx (Horizontal Bars, Basis Strings, Table View)"]:::done
+        F_POWER["features/forecast/PowerEstimateChart.tsx (Dedicated Chart, 45° Hatch, Formula Tooltip)"]:::done
+        F_SPARKLINE["features/forecast/MetricSparkline.tsx (2px Line, Tabular End Label)"]:::done
+        F_AI_PANEL["features/ai/AiPanel.tsx (AI Advisory Assistant, Summarize, Explain, Propose, AI · ADVISORY chip)"]:::done
+        F_EVIDENCE["features/ai/EvidenceModal.tsx (Verified Evidence Inspection, fc_ / cp_ / audit proof)"]:::done
+        F_PROPOSAL_CARD["features/proposals/ProposalCard.tsx (Action Mapping, Emoji Stripping, Revisions Diff, Audited Chat, Server Countdown, TFT Mirror, Terminal States)"]:::done
+        F_STEPPER["features/proposals/ProposalStepper.tsx (Proposed -> Discussing -> Approved -> Authorized)"]:::done
+        F_APPROVALS["features/proposals/ApprovalsView.tsx (Facility Approvals Queue, Status Filtering, Review Side Panel)"]:::done
+        F_SIM["features/simulations/SimulationsView.tsx (5 Multi-Scenario Stress Tests, Injected Deltas, Auto-AI Suggestions, Multi-Option Chat)"]:::done
+        F_AUDIT["features/audit/AuditView.tsx (Cryptographic SHA-256 Chain Verification, Tamper Detection, Single-mount Fetch, Data Grid, Mono Hash Copy, Detail Panel)"]:::done
+        F_APP["App.tsx (Role-based Routing, Redirection, Mismatch Banner, Approvals, Audit & Racks Sub-route Navigation)"]:::done
     end
 
-    node_env -. MQTT .-> ingest
-    node_vib -. MQTT .-> ingest
-    ingest --> db
-    ingest --> services_audit
-    ingest --> broadcaster
-    db --> repos
-    repos --> scope
-    scope --> api
-    services_audit --> repos
-    services_audit --> broadcaster
-    repos --> services_analysis
-    services_analysis --> repos
-    services_analysis --> broadcaster
-    api --> approval
-    approval --> repos
-    approval --> services_audit
-    approval --> broadcaster
-    api --> ai
-    ai --> repos
-    ai --> services_audit
-    api --> broadcaster
-    api --> ratelimit
-    auth_console -. HTTP polling & HMAC tap .-> api
-    broadcaster -. WS stream .-> ui
-    api -. REST .-> ui
+    subgraph Tools["tools/ & Launchers"]
+        T_LAUNCH["run_project.py & shared/run_project.py (One-Click Auto-Launcher, Port Auto-Clean)"]:::done
+        T_DEMO["tools/demo_check.py (8/8 Pre-flight verification checks)"]:::done
+        T_SMOKE["tools/smoke_test.py (8/8 End-to-end integration flow)"]:::done
+        T_BACKTEST["tools/synthetic/backtest.py (12-Month Ground-Truth Evaluation on files (1))"]:::done
+    end
+
+    H_ENV -->|MQTT| B_INGEST
+    H_VIB -->|MQTT| B_INGEST
+    H_AUTH -->|HTTP HMAC| B_APPROVAL
+    B_INGEST --> B_DB
+    B_INGEST --> B_BROADCAST
+    B_BROADCAST -->|WebSocket| F_WS
+    F_CLIENT -->|HTTP REST| B_API
+    B_API --> B_SCOPE
+    B_SCOPE --> B_REPOS
+    B_REPOS --> B_DB
 ```
-
-## 2. Data-Flow Graph
-
-```mermaid
-flowchart TD
-    classDef planned fill:#f9f9f9,stroke:#999,stroke-dasharray: 5 5;
-    classDef done fill:#d4edda,stroke:#28a745,stroke-width:2px;
-
-    SENSORS["ESP32 Nodes"]:::done -->|MQTT| INGEST["MQTT Ingest Pipeline"]:::done
-    INGEST -->|Write| DB[("SQLite WAL")]:::done
-
-    SCHED["AnalysisScheduler (every 10s)"]:::done
-    DB --> SCHED
-    SCHED -->|TheilSen + ETS + 1000 Sims| FC["Forecast Engine"]:::done
-    SCHED -->|CUSUM + PELT| CP["Change Point Detector"]:::done
-    SCHED -->|Slot + Correlation| ATTR["Attribution Engine"]:::done
-    SCHED -->|Linear CPU Model| PWR["Power Estimator"]:::done
-    SCHED -->|Reaper| REAP["Nonce Expiry Reaper"]:::done
-
-    FC -->|Cache| CACHE_FC[("forecast_cache table")]:::done
-    CP -->|Log| TABLE_CP[("changepoints table")]:::done
-
-    subgraph AI_LAYER [AI Advisory Layer (OWASP LLM06)]
-        AI_SUMM["POST /api/ai/summarize"]:::done
-        AI_EXPL["POST /api/ai/explain"]:::done
-        AI_PROP["POST /api/ai/propose"]:::done
-        AI_CHAT["POST /api/ai/chat"]:::done
-        RUNBOOK[("shared/runbook.md + Incidents")]:::done
-    end
-
-    CACHE_FC --> AI_EXPL
-    DB --> AI_SUMM
-    RUNBOOK -->|Scope-First RAG| AI_LAYER
-    AI_PROP -->|Create PROPOSED| DB
-
-    subgraph API [FastAPI Scoped Endpoints]
-        API_PROP["POST /api/proposals/{id}/approve"]:::done
-        API_TAP["POST /api/reader/{device}/tap"]:::done
-        API_PEND["GET /api/reader/{device}/pending"]:::done
-        API_VERIFY["GET /api/audit/verify"]:::done
-    end
-
-    API_PROP -->|Issue Nonce TTL 60s| DB
-    API_PEND -->|Pre-rendered ASCII TFT| TFT["Physical Auth Console TFT"]:::done
-    TFT -->|Physical RFID Tap + HMAC-SHA256| API_TAP
-    API_TAP -->|Atomic UPDATE & Audit Hash| DB
-    API_VERIFY -->|Verify SHA-256 Chain| AUDIT_CHAIN[("audit table")]:::done
-```
-
-## 3. API Surface Map
-
-Routes defined in code vs `shared/api-contract.md`:
-
-| Route | Method | Roles | Status |
-|---|---|---|---|
-| `/api/meta` | GET | Public | Implemented |
-| `/api/health` | GET | Public | Implemented (subsystem health & audit integrity) |
-| `/ws` | WS | Authenticated (JWT token param) | Implemented (500ms batching, double scope) |
-| `/api/auth/login` | POST | Public | Implemented (sliding-window rate-limited) |
-| `/api/auth/me` | GET | TENANT, OPERATOR, SUPER_USER | Implemented |
-| `/api/topology` | GET | TENANT (redacted), OPERATOR, SUPER_USER | Implemented |
-| `/api/nodes/{node_id}/telemetry` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented |
-| `/api/racks/{rack_id}/summary` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented (real worst_margin) |
-| `/api/audit` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented |
-| `/api/audit/verify` | GET | TENANT, OPERATOR, SUPER_USER | Implemented (recomputes full chain) |
-| `/api/tenants` | GET | SUPER_USER only (others get 404) | Implemented |
-| `/api/forecast/{node_id}/{metric}` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented |
-| `/api/changepoints` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented |
-| `/api/attribution/{rack_id}` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented |
-| `/api/power/{node_id}` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented |
-| `/api/baselines/{node_id}/{metric}/capture` | POST | OPERATOR, SUPER_USER | Implemented |
-| `/api/proposals` | POST | OPERATOR, SUPER_USER | Implemented |
-| `/api/proposals` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented |
-| `/api/proposals/{proposal_id}` | GET | TENANT (scoped), OPERATOR, SUPER_USER | Implemented |
-| `/api/proposals/{proposal_id}/approve` | POST | OPERATOR, SUPER_USER (TENANT gets 404) | Implemented (issues 60s nonce) |
-| `/api/proposals/{proposal_id}/reject` | POST | OPERATOR, SUPER_USER | Implemented |
-| `/api/reader/{device_id}/pending` | GET | Public (Device) | Implemented (pre-rendered ASCII lines) |
-| `/api/reader/{device_id}/tap` | POST | Public (Device HMAC) | Implemented (6-step atomic check, rate-limited) |
-| `/api/reader/{device_id}/heartbeat` | POST | Public (Device) | Implemented (NTP server time) |
-| `/api/ai/summarize` | POST | TENANT (scoped), OPERATOR, SUPER_USER | Implemented (evidence grounded) |
-| `/api/ai/explain` | POST | TENANT (scoped), OPERATOR, SUPER_USER | Implemented (real parameters) |
-| `/api/ai/propose` | POST | TENANT (scoped), OPERATOR, SUPER_USER | Implemented (closed whitelist) |
-| `/api/ai/chat` | POST | TENANT (scoped), OPERATOR, SUPER_USER | Implemented (prompt-injection hardened) |
-
-*Contract drift: None.*
-
-## 4. Proposal State Machine (Server-Owned)
-
-```mermaid
-stateDiagram-v2
-    [*] --> PROPOSED: AI or Operator Creation
-    PROPOSED --> DISCUSSING: POST /api/ai/chat
-    DISCUSSING --> APPROVED_PENDING_TAP: Human operator approves (POST /approve)
-    PROPOSED --> APPROVED_PENDING_TAP: Human operator approves (POST /approve)
-    APPROVED_PENDING_TAP --> AUTHORIZED: Valid physical RFID tap + HMAC
-    APPROVED_PENDING_TAP --> REJECTED: Operator rejects
-    APPROVED_PENDING_TAP --> EXPIRED: 60s nonce TTL elapsed
-    AUTHORIZED --> [*]
-    REJECTED --> [*]
-    EXPIRED --> [*]
-```
-
-## Subsystem Status
-
-| Subsystem | Status | Where it lives | Notes |
-|---|---|---|---|
-| Ingest | Implemented | `backend/ingest/` | Subscriber, validation, normalisation, LWT, gap detection |
-| Storage | Implemented | `backend/db/`, `backend/repos/` | SQLite WAL, telemetry, nodes, topology, users, cards, forecast_cache, changepoints, baselines, proposals, nonces, reader_devices |
-| Auth & Isolation | Implemented | `backend/repos/scope.py`, `backend/api/deps.py` | Single choke point, JWT, Scope object, 404 isolation, denial auditing |
-| Forecast | Implemented | `backend/services/forecast.py` | Theil-Sen slope CI check, ETS damped trend, 1000 sims, P10/P50/P90, no_breach_fraction |
-| Change-point | Implemented | `backend/services/changepoint.py` | Dual detector: CUSUM trigger + ruptures PELT confirmation, topology correlation |
-| Attribution | Implemented | `backend/services/attribution.py` | Inferred tenant contribution with basis string |
-| Power | Implemented | `backend/services/power.py` | Linear CPU model, estimated quality, complete model_detail |
-| Anomaly | Implemented | `backend/services/anomaly.py` | IsolationForest baseline scoring |
-| Scheduler | Implemented | `backend/services/scheduler.py` | Async task recomputing every 10s into cache tables, reaps expired nonces |
-| Approval | Implemented | `backend/services/approval.py` | Single-use 60s nonce, 6-step validation, HMAC-SHA256, atomic rowcount==1 consume |
-| AI | Implemented | `backend/services/ai/`, `backend/api/ai.py` | Advisory only, OWASP LLM06, closed whitelist, evidence grounding, scoped RAG |
-| Realtime & Broadcaster | Implemented | `backend/services/broadcaster.py`, `backend/api/ws.py` | 500ms per-node batching, prioritized queue backpressure, double-check scope |
-| Hardening & Limiting | Implemented | `backend/core/ratelimit.py`, `backend/api/meta.py` | Sliding window rate limiter, startup self-check fails loud on broken audit |
-| Audit | Implemented | `backend/services/audit.py`, `backend/repos/audit.py` | Append-only SHA-256 hash chain, zero UPDATE/DELETE, GET /api/audit/verify |
-| Frontend | Not started | `frontend/` | Phase 1-6 target |
-| Firmware | Implemented | `hardware/` | Shipped in kit |

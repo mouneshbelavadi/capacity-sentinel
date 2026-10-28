@@ -20,6 +20,7 @@ from backend.api.reader import router as reader_router
 from backend.api.telemetry import router as telemetry_router
 from backend.api.topology import router as topology_router
 from backend.api.ws import router as ws_router
+from backend.api.simulation import router as simulation_router
 from backend.core.config import settings
 from backend.core.logging import logger
 from backend.db.connection import get_db, init_db_async
@@ -171,3 +172,4 @@ app.include_router(proposals_router)
 app.include_router(reader_router)
 app.include_router(ai_router)
 app.include_router(ws_router)
+app.include_router(simulation_router)

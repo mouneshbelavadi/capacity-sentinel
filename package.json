@@ -1,0 +1,15 @@
+{
+  "name": "racksense-workspace",
+  "private": true,
+  "scripts": {
+    "start": "python run_project.py",
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix frontend test",
+    "lint": "npm --prefix frontend run lint",
+    "check-config": "python tools/check_config.py",
+    "smoke-test": "python tools/smoke_test.py",
+    "demo-check": "python tools/demo_check.py",
+    "backtest": "python tools/synthetic/backtest.py"
+  }
+}
