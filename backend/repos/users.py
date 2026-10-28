@@ -71,12 +71,14 @@ async def get_card(
     uid: str,
     scope: Scope,
 ) -> dict[str, Any] | None:
+    clean_uid = uid.replace(":", "").strip().upper()
+    colon_uid = ":".join(clean_uid[i:i+2] for i in range(0, len(clean_uid), 2)) if len(clean_uid) % 2 == 0 else clean_uid
     base_query = (
         "SELECT c.uid, c.user_id, c.active, c.max_risk_tier, c.issued_at, "
         "u.role, u.tenant_id, u.display_name "
-        "FROM cards c JOIN users u ON c.user_id = u.user_id WHERE c.uid = ?"
+        "FROM cards c JOIN users u ON c.user_id = u.user_id WHERE (c.uid = ? OR c.uid = ?)"
     )
-    scoped_query, params = apply_scope(base_query, scope, params=[uid], tenant_filter="u.tenant_id = ?")
+    scoped_query, params = apply_scope(base_query, scope, params=[clean_uid, colon_uid], tenant_filter="u.tenant_id = ?")
     cursor = await db.execute(scoped_query, params)
     row = await cursor.fetchone()
     if not row:
@@ -93,6 +95,7 @@ async def create_card(
     issued_at: str,
     scope: Scope,
 ) -> dict[str, Any]:
+    clean_uid = uid.replace(":", "").strip().upper()
     apply_scope("INSERT INTO cards", scope)
     await db.execute(
         """
@@ -104,11 +107,11 @@ async def create_card(
             max_risk_tier = excluded.max_risk_tier,
             issued_at = excluded.issued_at
         """,
-        (uid, user_id, active, max_risk_tier, issued_at),
+        (clean_uid, user_id, active, max_risk_tier, issued_at),
     )
     await db.commit()
     return {
-        "uid": uid,
+        "uid": clean_uid,
         "user_id": user_id,
         "active": active,
         "max_risk_tier": max_risk_tier,

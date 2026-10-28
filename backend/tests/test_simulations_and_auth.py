@@ -11,7 +11,7 @@ client = TestClient(app)
 
 def test_rfid_login_success():
     """Verify physical RFID badge authentication generates valid JWT with operator role."""
-    resp = client.post("/api/auth/rfid-login", json={"card_uid": "04:A1:B2:C3:D4"})
+    resp = client.post("/api/auth/rfid-login", json={"card_uid": "04A1B2C3D4"})
     assert resp.status_code == 200
     data = resp.json()
     assert "access_token" in data

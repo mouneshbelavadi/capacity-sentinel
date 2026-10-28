@@ -43,7 +43,7 @@ from backend.services.broadcaster import broadcaster
 
 READER_SECRET = "demo-reader-device-secret-key-32ch"
 READER_SECRET_HASH = hashlib.sha256(READER_SECRET.encode("utf-8")).hexdigest()
-OPERATOR_CARD_UID = "04:A1:B2:C3:D4"
+OPERATOR_CARD_UID = "04A1B2C3D4"
 
 
 async def setup_test_environment(db_path: str):

@@ -82,6 +82,40 @@ def wait_for_url(url: str, timeout: float = 20.0, label: str = "Service") -> boo
     return False
 
 
+def check_mosquitto_broker(host: str = "127.0.0.1", port: int = 1883) -> bool:
+    """Check if Mosquitto broker is reachable on host:port."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1.5)
+        return s.connect_ex((host, port)) == 0
+
+
+def sample_mqtt_messages(host: str, port: int, site_id: str, duration_s: float = 10.0) -> int:
+    """Listen on the MQTT topic root for duration_s seconds and count messages received."""
+    count = 0
+    try:
+        import paho.mqtt.client as mqtt
+
+        def on_msg(client, userdata, message):
+            nonlocal count
+            count += 1
+
+        client = mqtt.Client(client_id="racksense-launcher-probe")
+        client.on_message = on_msg
+        client.connect(host, port, 15)
+        client.subscribe(f"dc/{site_id}/+/+/telemetry")
+        client.subscribe(f"dc/{site_id}/+/+/status")
+        client.loop_start()
+        start = time.time()
+        while time.time() - start < duration_s:
+            time.sleep(0.5)
+            print(".", end="", flush=True)
+        client.loop_stop()
+        client.disconnect()
+    except Exception as e:
+        print(f" (probe error: {e})", end="")
+    return count
+
+
 def setup_database_and_environment(root: Path) -> None:
     """Ensures database is initialized, seeded, and verified."""
     print("\n[1/4] Checking and Updating Database & Topology...")
@@ -152,8 +186,43 @@ def main():
     # 3. Frontend checks
     check_frontend_node_modules(root)
 
+    # 3.5 Check Mosquitto MQTT Broker
+    from backend.core.config import settings
+    mqtt_host = settings.MQTT_BROKER_HOST
+    mqtt_port = settings.MQTT_BROKER_PORT
+    site_id = settings.SITE_ID
+
+    print(f"\n[3/5] Verifying Mosquitto Broker at {mqtt_host}:{mqtt_port}...")
+    if not check_mosquitto_broker(mqtt_host, mqtt_port):
+        print("\n" + "=" * 75)
+        print("  [FATAL ERROR] Mosquitto MQTT broker is NOT REACHABLE!")
+        print("=" * 75)
+        print(f"  Attempted connection to broker at {mqtt_host}:{mqtt_port} -> FAILED")
+        print("  The hardware ingestion layer requires an active Mosquitto broker.")
+        print("  Without a broker, no physical sensor telemetry will reach the database.")
+        print("")
+        print("  HOW TO START THE BROKER:")
+        print("    - On Arduino UNO Q / Linux: Run:")
+        print("        sudo systemctl start mosquitto")
+        print("        # or: mosquitto -c backend/mosquitto/mosquitto.conf.example -v")
+        print("    - On Windows Local Host: Run:")
+        print("        mosquitto -c backend/mosquitto/mosquitto.conf.example -v")
+        print("        (Install via 'winget install EclipseFoundation.Mosquitto')")
+        print("    - If broker is running on the Arduino UNO Q at another IP, set:")
+        print("        MQTT_BROKER_HOST=<uno_q_ip> in your .env file")
+        print("=" * 75 + "\n")
+        sys.exit(1)
+
+    print(f"  [OK] Mosquitto broker is active at {mqtt_host}:{mqtt_port}")
+    print(f"  [OK] Subscribed topic root: dc/{site_id}/+/+/telemetry and dc/{site_id}/+/+/status")
+    print(f"  Listening for incoming sensor messages for 10 seconds...", end="", flush=True)
+    msg_count = sample_mqtt_messages(mqtt_host, mqtt_port, site_id, duration_s=10.0)
+    print(f" [DONE: {msg_count} message(s) received]")
+    if msg_count == 0:
+        print("  [NOTE] 0 messages received in first 10s: sensor nodes may still be joining Wi-Fi or powered down.")
+
     # 4. Start Backend Server
-    print("\n[3/4] Starting FastAPI Backend on http://localhost:8000...")
+    print("\n[4/5] Starting FastAPI Backend on http://localhost:8000...")
     backend_cmd = [
         sys.executable,
         "-m",
@@ -178,7 +247,7 @@ def main():
     backend_ok = wait_for_url("http://127.0.0.1:8000/api/health", timeout=15.0, label="Backend API")
 
     # 5. Start Frontend Dev Server
-    print("\n[4/4] Starting Vite Frontend on http://localhost:5173...")
+    print("\n[5/5] Starting Vite Frontend on http://localhost:5173...")
     frontend_cmd = "npm --prefix frontend run dev -- --host 127.0.0.1 --port 5173"
     frontend_proc = subprocess.Popen(
         frontend_cmd,

@@ -5,7 +5,7 @@ import { Shield, Server, ArrowRight, Lock, User, Radio, CreditCard } from 'lucid
 export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('op1');
   const [password, setPassword] = useState('OperatorPassword123!');
-  const [manualCardUid, setManualCardUid] = useState('04:A1:B2:C3:D4');
+  const [manualCardUid, setManualCardUid] = useState('04A1B2C3D4');
   const [authMode, setAuthMode] = useState<'credentials' | 'rfid'>('credentials');
   const { login, loginWithRfid, isLoading, error } = useAuthStore();
 
@@ -168,28 +168,28 @@ export const LoginPage: React.FC = () => {
                 <button
                   type="button"
                   disabled={isLoading}
-                  onClick={() => handleRfidSubmit('04:A1:B2:C3:D4')}
+                  onClick={() => handleRfidSubmit('04A1B2C3D4')}
                   className="p-2.5 rounded border border-border bg-surface hover:bg-surface-hover transition-colors text-left space-y-1 shadow-2xs"
                 >
                   <div className="flex items-center gap-1.5 text-11 font-bold text-ink">
                     <CreditCard size={13} strokeWidth={1.5} className="text-primary" />
                     <span>Operator Badge</span>
                   </div>
-                  <div className="text-10 font-mono text-ink-muted">04:A1:B2:C3:D4</div>
+                  <div className="text-10 font-mono text-ink-muted">04A1B2C3D4</div>
                   <div className="text-9 text-ok font-semibold">Tier 2 Risk Auth</div>
                 </button>
 
                 <button
                   type="button"
                   disabled={isLoading}
-                  onClick={() => handleRfidSubmit('04:E5:F6:17:28')}
+                  onClick={() => handleRfidSubmit('04E5F61728')}
                   className="p-2.5 rounded border border-border bg-surface hover:bg-surface-hover transition-colors text-left space-y-1 shadow-2xs"
                 >
                   <div className="flex items-center gap-1.5 text-11 font-bold text-ink">
                     <CreditCard size={13} strokeWidth={1.5} className="text-primary" />
                     <span>Super User Badge</span>
                   </div>
-                  <div className="text-10 font-mono text-ink-muted">04:E5:F6:17:28</div>
+                  <div className="text-10 font-mono text-ink-muted">04E5F61728</div>
                   <div className="text-9 text-ok font-semibold">Tier 3 Full Auth</div>
                 </button>
               </div>
@@ -206,7 +206,7 @@ export const LoginPage: React.FC = () => {
                   type="text"
                   value={manualCardUid}
                   onChange={(e) => setManualCardUid(e.target.value)}
-                  placeholder="e.g. 04:A1:B2:C3:D4"
+                  placeholder="e.g. 04A1B2C3D4"
                   className="flex-1 h-9 px-3 rounded border border-border bg-surface text-ink font-mono text-12 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                 />
                 <button

@@ -216,7 +216,7 @@ describe('Simulations & AI Chat Integration Tests', () => {
 
     await waitFor(() => {
       expect(apiClient.post).toHaveBeenCalledWith('/api/auth/rfid-login', {
-        card_uid: '04:A1:B2:C3:D4',
+        card_uid: '04A1B2C3D4',
       });
     });
   });

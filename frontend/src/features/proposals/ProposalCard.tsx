@@ -319,12 +319,30 @@ export const ProposalCard: React.FC<ProposalCardProps> = ({
             </div>
           </div>
 
-          {/* TFT Screen Mirror Box */}
-          <div className="bg-ink p-3 rounded font-mono text-12 text-surface border border-ink shadow-inner space-y-1">
-            <div className="text-10 uppercase text-ink-muted">TFT Display Mirror:</div>
-            <div className="text-13 font-bold text-warn">{formatActionLabel(currentProposal.action).toUpperCase()}</div>
-            <div className="text-11 text-ink-2">Target: {currentProposal.target}</div>
-            <div className="text-10 text-ok pt-1">ARMED • Tap card to authorize</div>
+          {/* Physical 3.5" ILI9488 480x320 TFT Screen Mirror Box */}
+          <div className="bg-[#0f172a] p-3.5 rounded-lg font-mono text-12 text-slate-100 border-2 border-slate-700 shadow-md space-y-1.5" style={{ minHeight: "135px" }}>
+            <div className="flex items-center justify-between border-b border-slate-700 pb-1 text-10 text-slate-400">
+              <span className="font-semibold text-slate-300">TFT Display Mirror: ILI9488 480x320 (3.5")</span>
+              <span className="text-warn font-bold">AWAITING AUTHORIZATION</span>
+            </div>
+            <div className="text-14 font-extrabold text-amber-400 pt-0.5 tracking-wide">
+              {formatActionLabel(currentProposal.action).toUpperCase()}
+            </div>
+            <div className="text-12 text-slate-300">
+              Target: <span className="font-semibold text-white">{currentProposal.target}</span>
+            </div>
+            <div className="flex items-center justify-between pt-1">
+              <span className="px-2 py-0.5 rounded text-9 font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                RISK {currentProposal.risk_tier || 'MEDIUM'}
+              </span>
+              <span className="text-10 text-slate-400 font-mono">
+                {currentProposal.proposal_id}
+              </span>
+            </div>
+            <div className="text-11 text-emerald-400 font-semibold pt-1 flex items-center justify-between">
+              <span>ARMED • Tap card to authorize</span>
+              <span className="text-slate-400 text-10">{timeRemainingSeconds ?? 60}s</span>
+            </div>
           </div>
 
           {/* Countdown & Cancel */}

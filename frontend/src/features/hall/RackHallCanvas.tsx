@@ -60,17 +60,17 @@ const CameraController: React.FC<{
     if (!action) return;
     const controls = controlsRef.current;
     if (action.type === 'isometric' || action.type === 'reset') {
-      camera.position.set(16, 20, 24);
-      if (controls) controls.target.set(0, 2.5, -7);
+      camera.position.set(6, 6, 8.5);
+      if (controls) controls.target.set(0, 3.0, 0);
     } else if (action.type === 'focus-main') {
-      camera.position.set(0, 4.5, 9.5);
-      if (controls) controls.target.set(0, 3.8, 0);
+      camera.position.set(-1.7, 4.5, 6.5);
+      if (controls) controls.target.set(-1.7, 3.5, 0);
     } else if (action.type === 'frontal') {
-      camera.position.set(0, 5.5, 18);
-      if (controls) controls.target.set(0, 3.8, 0);
+      camera.position.set(0, 4.0, 9.0);
+      if (controls) controls.target.set(0, 3.2, 0);
     } else if (action.type === 'top') {
-      camera.position.set(0, 38, -9.6);
-      if (controls) controls.target.set(0, 0, -9.6);
+      camera.position.set(0, 16, 0.05);
+      if (controls) controls.target.set(0, 0, 0);
     } else if (action.type === 'zoom-in') {
       const dir = new THREE.Vector3();
       camera.getWorldDirection(dir);
@@ -111,48 +111,14 @@ interface AmbientRackDef {
 }
 
 /**
- * 27 Ambient/Facility Server Racks arranged in realistic rows with pathways
+ * Racks matching topology.example.yaml
  * Row 0: 6 ambient racks flanking our 2 highlighted racks
  * Row 1: 7 ambient racks along Aisle B
  * Row 2: 7 ambient racks along Aisle C
  * Row 3: 7 ambient racks along Aisle D
  */
-const AMBIENT_RACKS: AmbientRackDef[] = [
-  // Row 0 (Front Row flanking monitored racks at Z = 0)
-  { label: 'RACK A-01', position: [-11.9, 0, 0] },
-  { label: 'RACK A-02', position: [-8.5, 0, 0] },
-  { label: 'RACK A-03', position: [-5.1, 0, 0] },
-  { label: 'RACK A-04', position: [5.1, 0, 0] },
-  { label: 'RACK A-05', position: [8.5, 0, 0] },
-  { label: 'RACK A-06', position: [11.9, 0, 0] },
-
-  // Row 1 (Aisle B at Z = -6.4)
-  { label: 'RACK B-01', position: [-10.2, 0, -6.4] },
-  { label: 'RACK B-02', position: [-6.8, 0, -6.4] },
-  { label: 'RACK B-03', position: [-3.4, 0, -6.4] },
-  { label: 'RACK B-04', position: [0.0, 0, -6.4] },
-  { label: 'RACK B-05', position: [3.4, 0, -6.4] },
-  { label: 'RACK B-06', position: [6.8, 0, -6.4] },
-  { label: 'RACK B-07', position: [10.2, 0, -6.4] },
-
-  // Row 2 (Aisle C at Z = -12.8)
-  { label: 'RACK C-01', position: [-10.2, 0, -12.8] },
-  { label: 'RACK C-02', position: [-6.8, 0, -12.8] },
-  { label: 'RACK C-03', position: [-3.4, 0, -12.8] },
-  { label: 'RACK C-04', position: [0.0, 0, -12.8] },
-  { label: 'RACK C-05', position: [3.4, 0, -12.8] },
-  { label: 'RACK C-06', position: [6.8, 0, -12.8] },
-  { label: 'RACK C-07', position: [10.2, 0, -12.8] },
-
-  // Row 3 (Aisle D at Z = -19.2)
-  { label: 'RACK D-01', position: [-10.2, 0, -19.2] },
-  { label: 'RACK D-02', position: [-6.8, 0, -19.2] },
-  { label: 'RACK D-03', position: [-3.4, 0, -19.2] },
-  { label: 'RACK D-04', position: [0.0, 0, -19.2] },
-  { label: 'RACK D-05', position: [3.4, 0, -19.2] },
-  { label: 'RACK D-06', position: [6.8, 0, -19.2] },
-  { label: 'RACK D-07', position: [10.2, 0, -19.2] },
-];
+// Rule 0 enforcement: No invented racks. Render exactly the racks in topology.yaml.
+const AMBIENT_RACKS: AmbientRackDef[] = [];
 
 /**
  * Data Center Hall Raised Access Floor & Pathways
@@ -161,20 +127,20 @@ const AMBIENT_RACKS: AmbientRackDef[] = [
 const HallFloor: React.FC<{
   allRackPositions: [number, number, number][];
 }> = ({ allRackPositions }) => {
-  const rowZList = [0, -6.4, -12.8, -19.2];
+  const rowZList = [0];
 
   return (
     <group position={[0, -0.01, 0]}>
       {/* 1. Base Data Center Room Floor (White/Light-grey raised floor) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -9.6]}>
-        <planeGeometry args={[44, 40]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
+        <planeGeometry args={[18, 16]} />
         <meshBasicMaterial color={COLOR_CANVAS} />
       </mesh>
 
       {/* 2. Floor Tile Grid Lines (600mm x 600mm grid) */}
       <gridHelper
-        args={[44, 44, COLOR_GRID_LINE, COLOR_GRID_LINE]}
-        position={[0, 0.005, -9.6]}
+        args={[18, 18, COLOR_GRID_LINE, COLOR_GRID_LINE]}
+        position={[0, 0.005, 0]}
       />
 
       {/* 3. Rack Footprint Floor Markers & Cold Aisle Perforated Floor Plenum Tiles */}
@@ -236,7 +202,7 @@ const HallFloor: React.FC<{
 const OverheadInfrastructure: React.FC<{
   allRackPositions: [number, number, number][];
 }> = ({ allRackPositions }) => {
-  const rowZList = [0, -6.4, -12.8, -19.2];
+  const rowZList = [0];
   const rowSpan = 27.0;
   const racewayY = 8.95;
 
@@ -517,7 +483,7 @@ export const RackHallCanvas: React.FC<RackHallCanvasProps> = ({
         <div className="flex items-center gap-2 pointer-events-auto">
           <span className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-surface/90 backdrop-blur-sm border border-border text-11 font-semibold uppercase tracking-wider text-ink shadow-sm">
             <Eye size={13} strokeWidth={1.5} className="text-primary" />
-            <span>3D Data Center (29 Racks)</span>
+            <span>3D Data Center (2 Physical Racks)</span>
           </span>
           {isStale && (
             <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-warn-weak border border-warn/40 text-warn text-11 font-medium shadow-sm">
@@ -540,7 +506,7 @@ export const RackHallCanvas: React.FC<RackHallCanvasProps> = ({
                 ? 'bg-primary text-white shadow-xs'
                 : 'text-ink-2 hover:bg-surface-hover hover:text-ink'
             }`}
-            title="Full Data Center Isometric View (29 Racks & Pathways)"
+            title="Data Center Isometric View (2 Physical Racks)"
           >
             Full Hall
           </button>
@@ -678,7 +644,7 @@ export const RackHallCanvas: React.FC<RackHallCanvasProps> = ({
       {/* R3F Canvas with frameloop="demand" for strict performance budgeting */}
       <Canvas
         frameloop="demand"
-        camera={{ position: [16, 20, 24], fov: 42 }}
+        camera={{ position: [6, 6, 8.5], fov: 42 }}
         onPointerMissed={() => {
           // Deselect on empty space click
           onSelectSlot(null, null);
