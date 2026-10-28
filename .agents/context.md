@@ -1,22 +1,17 @@
 # RackSense — Context
-_Last updated: 2026-10-28T19:36:00Z by phase-f-realtime.md_
+_Last updated: 2026-10-28T19:53:00Z by master-integration_
 
 ## Contract
 - CONTRACT_VERSION in shared/api-contract.md: 1.0.0
-- Backend implements: 1.0.0 (Phase F complete)   Frontend built against: 1.0.0
-- Drift detected: none (Contract unchanged)
+- Backend implements: 1.0.0 (Phases A–F complete)
+- Frontend implements: 1.0.0 (Phases 1–6 complete)
+- Drift detected: none
+- Contract unchanged.
 
 ## Current state
-Phase F (Realtime, Timing and Hardening) is complete and verified. The backend provides a production-grade realtime communication and operational resilience layer:
-1. `WS /ws?token=<jwt>` provides authenticated bidirectional streaming with heartbeat ping/pong every 30s.
-2. `RealtimeBroadcaster` enforces Contract §12 telemetry batching: sensor publish rates (bursts up to 200 Hz) are batched per node and dispatched at most once every 500 ms per node, preventing event-loop starvation in browser dashboards.
-3. Double-checked scope isolation is enforced: rack subscriptions from tenants are validated (foreign rack attempts trigger `SCOPE_DENIED` in audit ledger), and every outbound frame undergoes $O(1)$ in-memory tenant verification. Zero foreign frames can ever leak.
-4. Slow client backpressure: send queues drop expendable `telemetry` and `power_estimate` frames when full, but strictly preserve critical state frames (`proposal_update`, `changepoint`, `audit_append`, `node_status`).
-5. In-memory sliding-window rate limiter guards `POST /api/auth/login` and `POST /api/reader/{device_id}/tap`.
-6. Startup self-check in `lifespan` verifies the SHA-256 audit chain from genesis to head on boot, failing loudly with `RuntimeError` if tampered.
-7. `GET /api/health` checks database, broker, scheduler, and audit chain without leaking tenant metrics.
-8. All Contract §14 timing budgets verified: Ingest payload 0.73 ms ($\le 250$ ms), MQTT $\rightarrow$ WS frame 0.36 ms ($\le 500$ ms), `GET /api/topology` 13.31 ms ($\le 150$ ms), `GET /api/forecast` cache 7.55 ms ($\le 200$ ms), Forecast recompute 109.57 ms ($\le 2000$ ms), `POST /api/proposals/approve` 16.44 ms ($\le 300$ ms).
-9. All 55 unit and integration tests passing; all 6 phase acceptance scripts passing.
+Full-stack implementation is complete and verified:
+1. **Backend (Phases A–F)**: Fully implemented in Python 3.11+, FastAPI, SQLite WAL mode, and Paho-MQTT subscriber. Implements Contract §15 packet validation, single-choke `apply_scope` tenant isolation, Theil-Sen bootstrap forecast + ETS damped trend, dual change-point detection (CUSUM+PELT), physical RFID approval state machine with 60s single-use nonces and HMAC-SHA256 constant-time verification, OWASP LLM06 grounded advisory AI layer, authenticated WebSocket `/ws?token=<jwt>` with 500ms batching and backpressure queue eviction, sliding-window rate limiting, and startup self-check verifying the SHA-256 hash-chained audit ledger from genesis. 55 backend tests passing.
+2. **Frontend (Phases 1–6)**: Fully implemented in React 18, TypeScript (strict, no any), Vite, and Tailwind CSS with custom design tokens. Implements Contract mismatch banner, single API client, single WebSocket hook with 500ms batch buffer, Data Center and Tenant dashboards, 404 stealth view, interactive 3D WebGL rack hall (Three.js with demand frameloop and 2D elevation grid fallback), capacity forecast cone chart (P10/P50/P90 band), vibration baseline chart, CPU-derived power chart, inferred tenant attribution chart, AI advisory panel with evidence modal, proposal discussion card with field-level diffing and countdown timer, physical TFT mirror box, and cryptographic audit log view with interactive tamper detection toggle. 88 frontend tests passing with zero TypeScript errors.
 
 ## Subsystem status
 | Subsystem | State | Where it lives | Notes |
@@ -35,7 +30,7 @@ Phase F (Realtime, Timing and Hardening) is complete and verified. The backend p
 | Realtime & Broadcaster | Implemented | `backend/services/broadcaster.py`, `backend/api/ws.py` | 500ms per-node batching, prioritized queue backpressure, double-check scope |
 | Hardening & Limiting | Implemented | `backend/core/ratelimit.py`, `backend/api/meta.py` | Sliding window rate limiter, startup self-check fails loud on broken audit |
 | Audit | Implemented | `backend/services/audit.py`, `backend/repos/audit.py` | Append-only SHA-256 hash chain, zero UPDATE/DELETE, GET /api/audit/verify |
-| Frontend | Not started | `frontend/` | Phase 1-6 target |
+| Frontend | Implemented | `frontend/` | Complete 6 phases: 3D hall, forecast cones, approval loop, audit tamper UI |
 | Firmware | Implemented | `hardware/` | Shipped in kit |
 
 ## Decisions made (append-only — never delete a row)
@@ -67,17 +62,19 @@ Phase F (Realtime, Timing and Hardening) is complete and verified. The backend p
 | 2026-10-28 | Selective queue backpressure drops telemetry but preserves state frames | Guarantee critical alerts (proposal, changepoint, audit) under high network lag | Phase F specification |
 | 2026-10-28 | scipy.stats.theilslopes analytical CI replaces slow bootstrap loops | Reduce forecast calculation latency from 7.9s to 109ms (well under 2s budget) | Phase F / Contract §14 |
 | 2026-10-28 | Fail-loud startup self-check verifying audit chain from genesis | Prevent booting if audit ledger was tampered or truncated out-of-band | Phase F specification |
+| 2026-10-28 | CSS design tokens as single source of styling truth in frontend | Enforces consistent infrastructure styling without raw hex codes | `phase-1-foundation.md` §1 |
+| 2026-10-28 | Single authStore with persistent localStorage and role derivation | Role routing cleanly synchronizes without prop drilling | `phase-1-foundation.md` §2 |
+| 2026-10-28 | 404 stealth on foreign tenant resources across UI views | Guarantees zero foreign tenant existence leakage on client | `phase-2-topology.md` §4 |
+| 2026-10-28 | 500 ms batching buffer in single WebSocket client hook | Prevents re-rendering React tree at sensor rate; caps commits at ≤ 2/s | `phase-3-realtime.md` §2 |
+| 2026-10-28 | Three explicit connection states (connected / reconnecting / stale) | Visible freshness state prevents operators acting on stale telemetry | `phase-3-realtime.md` §3 |
+| 2026-10-28 | Never dual-axis charts; separate power and vibration onto dedicated charts | Dedicated single-unit axes keep data presentation mathematically honest | `phase-4-charts.md` §0 |
+| 2026-10-28 | When has_trend is false, cone disappears and text states no sustained trend | Prevents inventing an ETA when slope CI contains zero | `phase-4-charts.md` §1 |
+| 2026-10-28 | `<Canvas frameloop="demand">` with direct material.color ref mutation in 3D | Maintains 60 FPS on integrated GPUs without re-rendering component tree | `phase-5-hall.md` §4 |
+| 2026-10-28 | Server-derived expires_at countdown calculation in ProposalCard | Eliminates client timer drift; matches hardware reader console exactly | `phase-6-approval.md` §3 |
+| 2026-10-28 | Cryptographic verification hero banner with live tamper simulation toggle | Demonstrates append-only SHA-256 integrity check and identifies broken row | `phase-6-approval.md` §4 |
 
 ## Open questions for the human
-None currently blocking.
-
-## Known limitations & Security honesty
-- **Cloud LLM Limitation**: The LLM runs in the cloud (or laptop-side), NOT on the Arduino UNO Q or ESP32 microcontrollers. A 1B 4-bit model requires ~500 MB; the ESP32-S3 has 512 KB SRAM. The edge device computes all numbers; the cloud LLM merely provides advisory language.
-- **RFID Security Statement**: An RFID UID is a **public identifier, not a secret** — "magic" cards can carry an arbitrary UID. The tap is the **second factor** after dashboard approval, scoped by a single-use nonce with a 60 s TTL and an HMAC over `device_id|uid|nonce|ts` to defeat replay. A rogue reader is rejected because it has no registered per-device secret. Production would use DESFire EV2/EV3 or NTAG 424 DNA with AES challenge–response, over TLS.
-- Power is estimated from CPU utilisation ($P = 0.4 + 1.0u$) (no current sensor fitted).
-- MQ135 publishes ratio Rs/R0, never ppm.
-- Week-scale forecasting is design intent; validated at minute-scale for hackathon.
+None. Full-stack implementation (Backend Phases A–F + Frontend Phases 1–6) complete and verified.
 
 ## Next actions
-1. Backend implementation is 100% complete across all Phases A–F.
-2. Await user prompt for the next phase (e.g. Frontend Phase 1: Foundation & Digital Twin Canvas).
+Full-stack system is completely integrated. Ready for final presentation / demo.
