@@ -1,0 +1,55 @@
+# Secrets — never commit these
+secrets.h
+.env
+.env.local
+*.key
+*.pem
+mosquitto/passwd
+
+# Real topology / users / card UIDs (the .example files are committed instead)
+tools/topology.yaml
+tools/users.yaml
+tools/cards.yaml
+
+# Databases and data
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+data/
+synthetic_out/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.vite/
+*.local
+
+# Agent working files (regenerated every run by startup.md)
+# graph.md and .agents/context.md ARE committed — they are the shared
+# memory between sessions. Only transient agent scratch is ignored.
+.agents/tmp/
+.agents/cache/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Arduino build output
+build/
+*.elf
+*.bin
+*.map
