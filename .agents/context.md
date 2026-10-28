@@ -58,6 +58,7 @@ Full-stack implementation is complete and verified:
 | 2026-10-28 | Scope-first RAG retrieval before similarity ranking | Prevent cross-tenant document and incident leakage via RAG | Phase E specification |
 | 2026-10-28 | Discussion in chat strictly bound to DISCUSSING status | Eliminate prompt-injection jailbreak route to approval or authorization | Phase E specification |
 | 2026-10-28 | Telemetry batched at max 500 ms interval per node | Decouple 200 Hz microcontroller sensor rate from browser UI rendering | Phase F / Contract §12 |
+| 2026-10-28 | Enriched judge guide with live competitor comparisons (Grafana/Datadog) and concrete tenant personas (HDFC Bank vs AI Lab) | Provide simple stage dialogue, live demo URLs, and clear persona understanding | User request |
 | 2026-10-28 | Double scope check (on subscribe and outbound send) | Prevent tenant socket from subscribing or receiving foreign node frames | Phase F / shared/tenant-isolation.md |
 | 2026-10-28 | Selective queue backpressure drops telemetry but preserves state frames | Guarantee critical alerts (proposal, changepoint, audit) under high network lag | Phase F specification |
 | 2026-10-28 | scipy.stats.theilslopes analytical CI replaces slow bootstrap loops | Reduce forecast calculation latency from 7.9s to 109ms (well under 2s budget) | Phase F / Contract §14 |
