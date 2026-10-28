@@ -23,7 +23,7 @@ import paho.mqtt.client as mqtt
 from backend.core.config import settings
 from backend.db.connection import get_db
 from backend.repos.nodes import get_node
-from backend.repos.telemetry import get_latest_telemetry
+from backend.repos.telemetry import get_latest_node_metric
 from backend.repos.scope import SYSTEM_SCOPE
 
 
@@ -129,7 +129,7 @@ def test_live_hardware_telemetry_and_physics():
                 f"Expected online status for r1-n1, got: {node.get('status')}"
             )
             # Check telemetry storage
-            latest = await get_latest_telemetry(db, "r1-n1", "t_c")
+            latest = await get_latest_node_metric(db, "r1-n1", "t_c", scope=SYSTEM_SCOPE)
             assert latest is not None, "Temperature reading for r1-n1 was not persisted to database"
             assert latest["quality"] == "measured", f"Expected quality 'measured', got {latest['quality']}"
             return latest["value"]
