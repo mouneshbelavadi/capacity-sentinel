@@ -1,6 +1,6 @@
 # RackSense — System Graph
 
-_Generated: 2026-10-28T19:54:00Z (Full-Stack System: Backend Phases A–F + Frontend Phases 1–6 Complete)_
+_Generated: 2026-10-28T21:55:00Z (Master Integration & Demo Readiness Complete)_
 
 ### 1. Full-Stack Module Graph
 
@@ -46,6 +46,15 @@ graph TD
         F_APPROVALS["features/proposals/ApprovalsView.tsx (Facility Approvals Queue, Status Filtering)"]:::done
         F_AUDIT_VIEW["features/audit/AuditView.tsx (Cryptographic SHA-256 Chain Verification, Tamper Detection, Data Grid)"]:::done
         F_APP["App.tsx (Role-based Routing, Redirection, Mismatch Banner)"]:::done
+    end
+
+    subgraph Integration["tools/ & Validation (Master Integration Complete)"]
+        T_CHECK["tools/check_config.py (Firmware vs Topology Checker)"]:::done
+        T_SMOKE["tools/smoke_test.py (8-Step End-to-End System Smoke Test)"]:::done
+        T_DEMO["tools/demo_check.py (Pre-Flight Readiness Checker)"]:::done
+        T_BACKTEST["tools/synthetic/backtest.py (12-Month Ground-Truth Evaluation)"]:::done
+        DOC_ANALYSIS["ANALYSIS.md (Mathematical & Physical Foundations)"]:::done
+        DOC_DEMO["DEMO.md (2.5-Minute Stage Script & Pre-Flight Playbook)"]:::done
     end
 
     H_ENV -. MQTT .-> B_INGEST

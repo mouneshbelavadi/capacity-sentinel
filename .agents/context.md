@@ -73,9 +73,15 @@ Full-stack implementation is complete and verified:
 | 2026-10-28 | `<Canvas frameloop="demand">` with direct material.color ref mutation in 3D | Maintains 60 FPS on integrated GPUs without re-rendering component tree | `phase-5-hall.md` §4 |
 | 2026-10-28 | Server-derived expires_at countdown calculation in ProposalCard | Eliminates client timer drift; matches hardware reader console exactly | `phase-6-approval.md` §3 |
 | 2026-10-28 | Cryptographic verification hero banner with live tamper simulation toggle | Demonstrates append-only SHA-256 integrity check and identifies broken row | `phase-6-approval.md` §4 |
+| 2026-10-28 | Automated config consistency check (tools/check_config.py) | Verifies firmware config.h matches central topology before flashing | `03-master-integration.md` Part 1 |
+| 2026-10-28 | Single-command 8-step end-to-end smoke test (tools/smoke_test.py) | Ingests sensor reading, polls REST, receives WS frame, approves proposal, submits HMAC tap, and verifies audit chain | `03-master-integration.md` Part 1 |
+| 2026-10-28 | Pre-flight readiness checker (tools/demo_check.py) | Verifies config, database, audit ledger, baselines, LLM fallback, and timing budgets before live stage demo | `03-master-integration.md` Part 2 & 5 |
+| 2026-10-28 | 12-month synthetic facility backtest (tools/synthetic/backtest.py) | Evaluates lead times (16.6d mean), false-alarm rate (12.5%), interval coverage (63.4%), and change-point F1 (1.000) against ground truth in files (1) | `03-master-integration.md` Part 4 |
+| 2026-10-28 | Transparent scope limit disclosure in ANALYSIS.md and DEMO.md | Week-scale claim declared as design intent and synthetic validation; bench physics acknowledged as minute-scale | `03-master-integration.md` Part 3 |
 
 ## Open questions for the human
-None. Full-stack implementation (Backend Phases A–F + Frontend Phases 1–6) complete and verified.
+None. Master Integration and Demo Readiness (Phases A–F, Phases 1–6, Parts 1–5) are complete and verified.
 
 ## Next actions
-Full-stack system is completely integrated. Ready for final presentation / demo.
+1. Run `npm run demo-check` immediately before live presentation to verify green status.
+2. Follow the 2.5-minute presentation script in `DEMO.md` with assigned team roles.
