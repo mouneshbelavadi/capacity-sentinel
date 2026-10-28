@@ -221,3 +221,4 @@ describe('Simulations & AI Chat Integration Tests', () => {
     });
   });
 });
+
