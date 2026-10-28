@@ -523,6 +523,16 @@ async def ai_propose(
         "model": settings.AI_MODEL,
         "as_of": now_iso,
     }
+
+    # Structured mitigation alternatives from closed whitelist
+    all_alternatives = [
+        {"action": "REDUCE_TENANT_LOAD", "label": "Option 1: Workload Throttle (-25% power)", "rationale": "Curtail intensive tenant compute bursts to shed thermal dissipation immediately."},
+        {"action": "MIGRATE_TENANT", "label": "Option 2: Live Workload Migration", "rationale": "Evacuate compute instances to cooler standby bays in Rack 01 with available thermal margin."},
+        {"action": "INSPECT_FAN", "label": "Option 3: Mechanical Fan Inspection", "rationale": "Dispatch floor technician to inspect bearing wear, fan tachometer, and vibration damping."},
+        {"action": "INCREASE_COOLING_SETPOINT_REQUEST", "label": "Option 4: Raise Aisle Cooling Request", "rationale": "Signal facility BMS to lower CRAC discharge temperature to expand safe headroom."}
+    ]
+    created["alternative_options"] = [opt for opt in all_alternatives if opt["action"] != action]
+
     return created
 
 

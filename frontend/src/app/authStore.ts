@@ -8,6 +8,7 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   login: (username: string, password: string) => Promise<boolean>;
+  loginWithRfid: (cardUid: string) => Promise<boolean>;
   logout: () => void;
   checkAuth: () => Promise<void>;
   setUserManually: (user: AuthMeResponse, token: string) => void;
@@ -42,6 +43,33 @@ export const useAuthStore = create<AuthState>((set) => ({
       return true;
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Login failed';
+      set({ isLoading: false, error: msg });
+      return false;
+    }
+  },
+
+  loginWithRfid: async (cardUid: string): Promise<boolean> => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await apiClient.post<LoginResponse>('/api/auth/rfid-login', {
+        card_uid: cardUid,
+      });
+
+      setStoredToken(response.access_token);
+      set({
+        user: {
+          user_id: response.role.toLowerCase() + '-' + (response.tenant_id || 'site'),
+          role: response.role,
+          tenant_id: response.tenant_id,
+          display_name: response.display_name,
+        },
+        token: response.access_token,
+        isLoading: false,
+        error: null,
+      });
+      return true;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'RFID authentication failed';
       set({ isLoading: false, error: msg });
       return false;
     }

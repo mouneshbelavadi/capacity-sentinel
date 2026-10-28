@@ -10,6 +10,7 @@ import { AccessControl } from './features/access/AccessControl';
 import { ForecastView } from './features/forecast/ForecastView';
 import { ApprovalsView } from './features/proposals/ApprovalsView';
 import { AuditView } from './features/audit/AuditView';
+import { SimulationsView } from './features/simulations/SimulationsView';
 import { ContractMismatchBanner } from './design/ContractMismatchBanner';
 
 export const App: React.FC = () => {
@@ -113,6 +114,8 @@ export const App: React.FC = () => {
     activeSection = 'access';
   } else if (currentPath.includes('/racks')) {
     activeSection = 'racks';
+  } else if (currentPath.includes('/simulations')) {
+    activeSection = 'simulations';
   } else if (currentPath.includes('/forecasts')) {
     activeSection = 'forecasts';
   } else if (currentPath.includes('/approvals')) {
@@ -126,6 +129,8 @@ export const App: React.FC = () => {
       navigateTo('/datacenter/access');
     } else if (section === 'racks') {
       navigateTo(user.role === 'TENANT' ? '/tenant/racks' : '/datacenter/racks');
+    } else if (section === 'simulations') {
+      navigateTo(user.role === 'TENANT' ? '/tenant/simulations' : '/datacenter/simulations');
     } else if (section === 'forecasts') {
       navigateTo(user.role === 'TENANT' ? '/tenant/forecasts' : '/datacenter/forecasts');
     } else if (section === 'approvals') {
@@ -163,6 +168,22 @@ export const App: React.FC = () => {
         breadcrumb={['Data Center', 'Access Control']}
       >
         <AccessControl />
+      </Shell>
+    );
+  }
+
+  if (currentPath.includes('/simulations')) {
+    return (
+      <Shell
+        currentSection="simulations"
+        onNavigate={handleNavSelect}
+        pageTitle="Facility Multi-Scenario Simulations"
+        breadcrumb={['Site 01', 'Operational Simulations']}
+      >
+        <SimulationsView
+          onNavigateToHall={() => handleNavSelect('racks')}
+          onNavigateToApprovals={() => handleNavSelect('approvals')}
+        />
       </Shell>
     );
   }

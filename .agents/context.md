@@ -94,9 +94,12 @@ Full-stack implementation is complete, integrated, and verified:
 | 2026-10-28 | Fully populated server blade racks with standby units | Populates all 42U rack bays with realistic server blades (handles, caddies, LEDs) replacing blank panels, creating a dense authentic server rack visual | User request: each rack create servers only |
 | 2026-10-29 | 29-rack data center room layout with pathways, aisle containment, and selective highlighting | Renders 29 server racks across 4 rows with 3.3m walking corridors, floor demarcation, overhead fiber raceways, and perimeter CRAC units; selectively highlights only our 2 main telemetry racks with live status and predictive billboards | User request: at least 25 server racks with pathways, highlight only 2 main racks |
 | 2026-10-29 | Full-page Total View expansion mode for 3D interface with floating side metrics | Adds "Total View" expansion button on 3D card header and canvas toolbar, expanding 3D canvas to 100vw/100vh with floating left/right metrics overlay, toggleable panel visibility, timeline scrubber, smooth zoom/orbit controls, URL state sync (?view=total), and Escape key exit | User request: open whole 3D interface on full page with metrics on left/right and clean zoom |
+| 2026-10-29 | Physical RFID badge authentication & credential alias bridge | Added POST /api/auth/rfid-login validating physical card UIDs against DB cards, creating JWT tokens and logging RFID_LOGIN audit events; bridged friendly demo usernames for 1-click evaluation | User request |
+| 2026-10-29 | Multi-option AI suggestions & interactive advisory chat expansion | Added structured mitigation alternatives (Options 1–4) to AI proposals, enabled pre-approval discussion chat without prior proposal anchor, and added 1-click alternative switching | User request |
+| 2026-10-29 | Multi-Scenario Facility Simulation Engine | Built backend /api/simulations and frontend SimulationsView: 5 realistic operational stress tests (thermal breach, fan bearing degradation, air stagnation, compute surge, baseline reset) injecting synthetic telemetry and auto-generating AI recommendations with chat | User request |
 
 ## Open questions for the human
-None. Master Integration, Visual Management, and Demo Readiness are complete and verified.
+None. Full-stack integration, simulation engine, RFID authentication, multi-option AI advisory chat, and live benchmark dataset integration are complete and verified across 113 frontend vitest tests and 61 backend pytest tests.
 
 ## Next actions
 1. Run `npm run demo-check` immediately before live presentation to verify green status.

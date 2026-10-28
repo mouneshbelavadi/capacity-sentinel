@@ -16,12 +16,14 @@ import {
   RefreshCw,
   Clock,
   Zap,
+  PlayCircle,
   X,
 } from 'lucide-react';
 
 export type NavSection =
   | 'overview'
   | 'racks'
+  | 'simulations'
   | 'forecasts'
   | 'approvals'
   | 'audit'
@@ -94,6 +96,7 @@ export const Shell: React.FC<ShellProps> = ({
   const navItems = [
     { id: 'overview' as NavSection, label: 'Overview', icon: LayoutDashboard },
     { id: 'racks' as NavSection, label: 'Racks', icon: Server },
+    { id: 'simulations' as NavSection, label: 'Simulations', icon: PlayCircle },
     { id: 'forecasts' as NavSection, label: 'Forecasts', icon: TrendingUp },
     { id: 'approvals' as NavSection, label: 'Approvals', icon: CheckSquare },
     { id: 'audit' as NavSection, label: 'Audit Log', icon: FileText },

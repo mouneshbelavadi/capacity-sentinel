@@ -366,6 +366,11 @@ export interface Proposal {
   risk_tier: RiskTier;
   status: ProposalStatus;
   meta: MetaProvenance;
+  alternative_options?: Array<{
+    action: string;
+    label: string;
+    rationale: string;
+  }>;
 }
 
 export interface ProposalsResponse {

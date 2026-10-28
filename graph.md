@@ -25,7 +25,8 @@ graph TD
         B_AI["backend/services/ai (RAG, client, summarizer, explainer, proposer, chat)"]:::done
         B_BROADCAST["backend/services/broadcaster.py (RealtimeBroadcaster, 500ms batching, backpressure)"]:::done
         B_LIMIT["backend/core/ratelimit.py (sliding window limiter)"]:::done
-        B_API["backend/api (auth, meta, ws, topology, telemetry, racks, audit, analysis, proposals, reader, ai)"]:::done
+        B_SIM["backend/api/simulation.py (5 Operational Stress Test Scenarios, Telemetry Injection, Auto-AI)"]:::done
+        B_API["backend/api (auth, rfid-login, meta, ws, topology, telemetry, racks, audit, analysis, proposals, reader, ai, simulations)"]:::done
     end
 
     subgraph Frontend["frontend/src (Phases 1–6 Complete + Visual Management)"]
@@ -68,6 +69,7 @@ graph TD
         F_PROPOSAL_CARD["features/proposals/ProposalCard.tsx (Action Mapping, Emoji Stripping, Revisions Diff, Audited Chat, Server Countdown, TFT Mirror, Terminal States)"]:::done
         F_STEPPER["features/proposals/ProposalStepper.tsx (Proposed -> Discussing -> Approved -> Authorized)"]:::done
         F_APPROVALS["features/proposals/ApprovalsView.tsx (Facility Approvals Queue, Status Filtering, Review Side Panel)"]:::done
+        F_SIM["features/simulations/SimulationsView.tsx (5 Multi-Scenario Stress Tests, Injected Deltas, Auto-AI Suggestions, Multi-Option Chat)"]:::done
         F_AUDIT["features/audit/AuditView.tsx (Cryptographic SHA-256 Chain Verification, Tamper Detection, Single-mount Fetch, Data Grid, Mono Hash Copy, Detail Panel)"]:::done
         F_APP["App.tsx (Role-based Routing, Redirection, Mismatch Banner, Approvals, Audit & Racks Sub-route Navigation)"]:::done
     end
